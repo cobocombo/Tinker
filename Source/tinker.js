@@ -557,6 +557,7 @@ class Component
 class Page 
 {
   #errors;
+  header;
   main;
 
   /**
@@ -570,6 +571,7 @@ class Page
       containerInvalidError: `Page Error: Expected values 'fluid' or 'fixed' for container.`,
       containerTypeError: 'Page Error: Expected type string for container.',
       faviconTypeError: 'Page Error: Expected type string for favicon url.',
+      headerTypeError: 'Page Error: Expected type Header for header.',
       titleTypeError: 'Page Error: Expected type string for title.'
     };
 
@@ -620,7 +622,7 @@ class Page
    */
   set title(value) 
   {
-    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.titleTypeError);
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.titleTypeError);
     document.title = value;
   }
 
@@ -641,8 +643,7 @@ class Page
    */
   set favicon(value) 
   {
-    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.faviconTypeError);
-
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.faviconTypeError);
     let link = document.querySelector("link[rel~='icon']");
     if(!link) 
     {
@@ -650,14 +651,75 @@ class Page
       link.rel = 'icon';
       document.head.appendChild(link);
     }
-
     link.href = value;
+  }
+
+  /** 
+   * Public method to add a header element before the main element in the DOM. If the main element is not yet attached, 
+   * both header and main are appended to the document body in the correct order.
+   * @param {Component} options.header - The header component to insert.
+   */
+  addHeader({ header } = {})
+  {
+    if(!typechecker.check({ type: 'header', value: header })) console.error(this.#errors.headerTypeError);
+    if(this.main.element.parentNode) this.main.element.parentNode.insertBefore(header.element, this.main.element);
+    else 
+    {
+      document.body.appendChild(header.element);
+      document.body.appendChild(this.main.element);
+    }
+    this.header = header;
   }
 
   /** Public method to present the page by attaching it's elements to document.body. */
   present() 
   {
     document.body.appendChild(this.main.element);
+  }
+}
+
+/////////////////////////////////////////////////
+
+class Header extends Component
+{
+  #errors;
+
+  constructor(options = {})
+  {
+    super({ tagName: 'header', options: options });
+
+    this.#errors = 
+    {
+      containerInvalidError: `Header Error: Expected values 'fluid' or 'fixed' for container.`,
+      containerTypeError: 'Header Error: Expected type string for container.',
+    };
+
+    this.container = options.container || 'fluid';
+  }
+
+  /**
+   * Get property to return the current container layout type of the page. Checks the class list of the main element.
+   * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
+   */
+  get container()
+  {
+    if(this.getClasses().includes('container-fluid')) return 'fluid';
+    else if(this.getClasses().includes('container')) return 'fixed';
+    else return null;
+  }
+
+  /**
+   * Set property to change the container layout type of the page. Removes any existing container classes and applies the requested one.
+   * @param {string} value - Accepts 'fluid' or 'fixed'.
+   */
+  set container(value)
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.containerTypeError);
+    this.removeClass({ className: 'container-fluid' });
+    this.removeClass({ className: 'container' });
+    if(value === 'fluid') this.addClass({ className: 'container-fluid' });
+    else if(value === 'fixed') this.addClass({ className: 'container' });
+    else console.error(this.#errors.containerInvalidError);
   }
 }
 
@@ -668,4 +730,8 @@ globalThis.color = ColorManager.getInstance();
 globalThis.ui = UserInterface.getInstance();
 
 typechecker.register({ name: 'component', constructor: Component });
+typechecker.register({ name: 'page', constructor: Page });
+typechecker.register({ name: 'header', constructor: Header });
 ui.register({ name: 'Component', constructor: Component });
+ui.register({ name: 'Page', constructor: Page });
+ui.register({ name: 'Header', constructor: Header });

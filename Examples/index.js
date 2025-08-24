@@ -1,13 +1,15 @@
-class HomePage extends Page
+class HomePage extends ui.Page
 {
   constructor()
   {
     super();
+
+    this.container = 'fixed';
+    this.title = 'Home';
+    this.favicon = 'star.png';
   }
 }
 
 let page = new HomePage();
-page.title = 'Home';
-page.favicon = 'star.png';
-page.container = 'fixed';
+page.addHeader({ header: new ui.Header() });
 page.present();
