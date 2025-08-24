@@ -520,19 +520,19 @@ class Component
 
 /////////////////////////////////////////////////
 
-class Page extends Component 
+class Page 
 {
   #errors;
 
   constructor(options = {}) 
   {
-    super({ tagName: 'main', options: options });
-
     this.#errors = 
     {
       faviconTypeError: 'Page Error: Expected type string for favicon url.',
       titleTypeError: 'Page Error: Expected type string for title.'
     };
+
+    this.main = new Component({ tagName: 'main', options: {} });
 
     if(options.favicon) this.favicon = options.favicon;
     if(options.title) this.title = options.title;
@@ -563,7 +563,7 @@ class Page extends Component
    */
   get favicon() 
   {
-    const link = document.querySelector("link[rel~='icon']");
+    let link = document.querySelector("link[rel~='icon']");
     return link ? link.href : null;
   }
 
@@ -587,10 +587,10 @@ class Page extends Component
     link.href = value;
   }
 
-  /** Public method to present the page by attaching it to document.body. */
+  /** Public method to present the page by attaching it's elements to document.body. */
   present() 
   {
-    document.body.appendChild(this.element);
+    document.body.appendChild(this.main.element);
   }
 }
 
