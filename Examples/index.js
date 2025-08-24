@@ -3,8 +3,6 @@ class HomePage extends Page
   constructor()
   {
     super();
-
-    console.log('Home!');
   }
 }
 

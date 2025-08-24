@@ -197,6 +197,7 @@ class Component
     {
       addEvEventTypeError: 'Component Error: Expected type string for event when adding an event listener',
       addEvHandlerTypeError: 'Component Error: Expected type function for handler when trying add an event listener.',
+      addClassTypeError: 'Component Error: Expected type string for className when trying to add a class.',
       alphaInvalidError: 'Component Error: Alpha value must be a string between "0.0" and "1.0" inclusive.',
       alphaTypeError: 'Component Error: Expected type string for alpha.',
       backgroundColorInvalidTypeError: 'Component Error: Invalid color value provided for backgroundColor.',
@@ -205,6 +206,7 @@ class Component
       borderColorInvalidError: 'Component Error: Invalid color value for borderColor.',
       borderWidthTypeError: 'Component Error: Expected type string for borderWidth.',
       getAttributeKeyTypeError: 'Component Error: Expected type string for key when trying to get the attribute value that corresponds with the key provided.',
+      getClassesError: 'Component Error: Unable to retrieve classes; element not initialized.',
       heightTypeError: 'Component Error: Expected type string for height.',
       idTypeError: 'Component Error: Expected type string for id.',
       noTagNameParameterError: 'Component Error: No tagName parameter was detected.',
@@ -212,6 +214,7 @@ class Component
       removeAttributeKeyTypeError: 'Component Error: Expected type string for key when trying to remove the attribute value that corresponds with the key provided.',
       removeEvEventTypeError: 'Component Error: Expected type string for event when trying to remove an event listener',
       removeEvHandlerTypeError: 'Component Error: Expected type function for handler when trying to remove an event listener.',
+      removeClassTypeError: 'Component Error: Expected type string for className when trying to remove a class.',
       removeComponentError: 'Component Error: Component could not be removed as expected.',
       setAttributeKeyTypeError: 'Component Error: Expected type string for key when trying to set the attribute value that corresponds with the key provided.',
       setAttributeValueTypeError: 'Component Error: Expected type string for value when trying to set the attribute value that corresponds with the key provided.',
@@ -418,6 +421,16 @@ class Component
     if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.widthTypeError);
     this.#element.style.width = value;
   }
+
+  /**
+   * Public method to add a class to the component.
+   * @param {string} className - The CSS class name to add.
+   */
+  addClass({ className } = {}) 
+  {
+    if(!typechecker.check({ type: 'string', value: className })) console.error(this.#errors.addClassTypeError);
+    this.#element.classList.add(className);
+  }
   
   /** 
    * Public method to add a custom event listener to the component.
@@ -435,9 +448,9 @@ class Component
    * Public method to add a child component to the current component.
    * @param {Component} child - Child component to be added to the current component.
    */
-  appendChild({ child } = {}) 
+  addComponent({ component } = {}) 
   {
-    if(typechecker.check({ type: 'component', value: child })) this.#element.appendChild(child.#element);
+    if(typechecker.check({ type: 'component', value: child })) this.#element.appendChild(component.#element);
     else this.#element.appendChild(child); 
   }
   
@@ -463,6 +476,16 @@ class Component
     if(!typechecker.check({ type: 'string', value: key })) console.error(this.#errors.getAttributeKeyTypeError);
     return this.#element.getAttribute(key);
   }
+
+  /**
+   * Public method to get all current classes of the component.
+   * @return {string[]} An array of class names.
+   */
+  getClasses() 
+  {
+    if(!this.#element) console.error(this.#errors.getClassesError);
+    return Array.from(this.#element.classList);
+  }
   
   /** Public method to hide the component. */
   hide() 
@@ -485,6 +508,16 @@ class Component
   {
     if(!typechecker.check({ type: 'string', value: key })) console.error(this.#errors.removeAttributeKeyTypeError);
     this.#element.removeAttribute(key);
+  }
+
+  /**
+   * Public method to remove a class from the component.
+   * @param {string} className - The CSS class name to remove.
+   */
+  removeClass({ className } = {}) 
+  {
+    if(!typechecker.check({ type: 'string', value: className })) console.error(this.#errors.removeClassTypeError);
+    this.#element.classList.remove(className);
   }
   
   /** 
@@ -520,10 +553,16 @@ class Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Page Component. */
 class Page 
 {
   #errors;
+  main;
 
+  /**
+   * Creates the page object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
   constructor(options = {}) 
   {
     this.#errors = 
@@ -532,7 +571,8 @@ class Page
       titleTypeError: 'Page Error: Expected type string for title.'
     };
 
-    this.main = new Component({ tagName: 'main', options: {} });
+    this.main = new ui.Component({ tagName: 'main', options: {} });
+    this.main.addClass({ className: 'container' });
 
     if(options.favicon) this.favicon = options.favicon;
     if(options.title) this.title = options.title;
@@ -553,7 +593,7 @@ class Page
    */
   set title(value) 
   {
-    if (!typechecker.check({ type: 'string', value })) console.error(this.#errors.titleTypeError);
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.titleTypeError);
     document.title = value;
   }
 
@@ -600,4 +640,5 @@ globalThis.typechecker = TypeChecker.getInstance();
 globalThis.color = ColorManager.getInstance();
 globalThis.ui = UserInterface.getInstance();
 
+typechecker.register({ name: 'component', constructor: Component });
 ui.register({ name: 'Component', constructor: Component });
