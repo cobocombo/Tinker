@@ -557,6 +557,7 @@ class Component
 class Page 
 {
   #errors;
+  footer;
   header;
   main;
 
@@ -571,11 +572,20 @@ class Page
       containerInvalidError: `Page Error: Expected values 'fluid' or 'fixed' for container.`,
       containerTypeError: 'Page Error: Expected type string for container.',
       faviconTypeError: 'Page Error: Expected type string for favicon url.',
+      footerTypeError: 'Page Error: Expected type Footer for footer.',
       headerTypeError: 'Page Error: Expected type Header for header.',
+      pageExistsError: 'Page Error: A page object already exists in the document.',
       titleTypeError: 'Page Error: Expected type string for title.'
     };
 
+    if(document.body.querySelector('main')) 
+    {
+      console.log(this.#errors.pageExistsError);
+      return;
+    }
+
     this.main = new ui.Component({ tagName: 'main', options: {} });
+    document.body.appendChild(this.main.element);
 
     this.container = options.container || 'fluid';
     if(options.favicon) this.favicon = options.favicon;
@@ -655,26 +665,35 @@ class Page
   }
 
   /** 
-   * Public method to add a header element before the main element in the DOM. If the main element is not yet attached, 
-   * both header and main are appended to the document body in the correct order.
-   * @param {Component} options.header - The header component to insert.
+   * Public method to add a header element before the main element in the DOM.
+   * @param {Header} header - The header component to insert.
    */
   addHeader({ header } = {})
   {
     if(!typechecker.check({ type: 'header', value: header })) console.error(this.#errors.headerTypeError);
     if(this.main.element.parentNode) this.main.element.parentNode.insertBefore(header.element, this.main.element);
-    else 
-    {
-      document.body.appendChild(header.element);
-      document.body.appendChild(this.main.element);
-    }
     this.header = header;
   }
 
-  /** Public method to present the page by attaching it's elements to document.body. */
-  present() 
+  /** 
+   * Public method to add a footer element after the main element in the DOM.
+   * @param {Footer} footer - The footer component to insert.
+   */
+  addFooter({ footer } = {})
   {
-    document.body.appendChild(this.main.element);
+    if(!typechecker.check({ type: 'footer', value: footer })) console.error(this.#errors.footerTypeError);
+    if(this.main.element.parentNode) this.main.element.parentNode.insertBefore(footer.element, this.main.element.nextSibling);
+    this.footer = footer;
+  }
+
+  /** Public method to remove the footer element from the DOM if it exists. */
+  removeFooter()
+  {
+    if(this.footer && this.footer.element && this.footer.element.parentNode)
+    {
+      this.footer.element.parentNode.removeChild(this.footer.element);
+      this.footer = null;
+    }
   }
 
   /** Public method to remove the header element from the DOM if it exists. */
@@ -713,7 +732,7 @@ class Header extends Component
   }
 
   /**
-   * Get property to return the current container layout type of the page. Checks the class list of the main element.
+   * Get property to return the current container layout type of the header. Checks the class list of the main element.
    * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
    */
   get container()
@@ -724,7 +743,57 @@ class Header extends Component
   }
 
   /**
-   * Set property to change the container layout type of the page. Removes any existing container classes and applies the requested one.
+   * Set property to change the container layout type of the header. Removes any existing container classes and applies the requested one.
+   * @param {string} value - Accepts 'fluid' or 'fixed'.
+   */
+  set container(value)
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.containerTypeError);
+    this.removeClass({ className: 'container-fluid' });
+    this.removeClass({ className: 'container' });
+    if(value === 'fluid') this.addClass({ className: 'container-fluid' });
+    else if(value === 'fixed') this.addClass({ className: 'container' });
+    else console.error(this.#errors.containerInvalidError);
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the Footer Component. */
+class Footer extends Component
+{
+  #errors;
+
+  /**
+   * Creates the footer object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {})
+  {
+    super({ tagName: 'footer', options: options });
+
+    this.#errors = 
+    {
+      containerInvalidError: `Footer Error: Expected values 'fluid' or 'fixed' for container.`,
+      containerTypeError: 'Footer Error: Expected type string for container.',
+    };
+
+    this.container = options.container || 'fluid';
+  }
+
+  /**
+   * Get property to return the current container layout type of the footer. Checks the class list of the main element.
+   * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
+   */
+  get container()
+  {
+    if(this.getClasses().includes('container-fluid')) return 'fluid';
+    else if(this.getClasses().includes('container')) return 'fixed';
+    else return null;
+  }
+
+  /**
+   * Set property to change the container layout type of the footer. Removes any existing container classes and applies the requested one.
    * @param {string} value - Accepts 'fluid' or 'fixed'.
    */
   set container(value)
@@ -747,6 +816,8 @@ globalThis.ui = UserInterface.getInstance();
 typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'header', constructor: Header });
+typechecker.register({ name: 'footer', constructor: Footer });
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Header', constructor: Header });
+ui.register({ name: 'Footer', constructor: Footer });
