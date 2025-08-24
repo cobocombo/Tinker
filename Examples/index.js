@@ -9,4 +9,5 @@ class HomePage extends Page
 let page = new HomePage();
 page.title = 'Home';
 page.favicon = 'star.png';
+page.container = 'fixed';
 page.present();

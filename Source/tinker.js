@@ -567,15 +567,42 @@ class Page
   {
     this.#errors = 
     {
+      containerInvalidError: `Page Error: Expected values 'fluid' or 'fixed' for container.`,
+      containerTypeError: 'Page Error: Expected type string for container.',
       faviconTypeError: 'Page Error: Expected type string for favicon url.',
       titleTypeError: 'Page Error: Expected type string for title.'
     };
 
     this.main = new ui.Component({ tagName: 'main', options: {} });
-    this.main.addClass({ className: 'container' });
 
+    this.container = options.container || 'fluid';
     if(options.favicon) this.favicon = options.favicon;
     if(options.title) this.title = options.title;
+  }
+
+  /**
+   * Get property to return the current container layout type of the page. Checks the class list of the main element.
+   * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
+   */
+  get container()
+  {
+    if(this.main.getClasses().includes('container-fluid')) return 'fluid';
+    else if(this.main.getClasses().includes('container')) return 'fixed';
+    else return null;
+  }
+
+  /**
+   * Set property to change the container layout type of the page. Removes any existing container classes and applies the requested one.
+   * @param {string} value - Accepts 'fluid' or 'fixed'.
+   */
+  set container(value)
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.containerTypeError);
+    this.main.removeClass({ className: 'container-fluid' });
+    this.main.removeClass({ className: 'container' });
+    if(value === 'fluid') this.main.addClass({ className: 'container-fluid' });
+    else if(value === 'fixed') this.main.addClass({ className: 'container' });
+    else console.error(this.#errors.containerInvalidError);
   }
 
   /**
