@@ -518,9 +518,86 @@ class Component
   }  
 }
 
+/////////////////////////////////////////////////
+
+class Page extends Component 
+{
+  #errors;
+
+  constructor(options = {}) 
+  {
+    super({ tagName: 'main', options: options });
+
+    this.#errors = 
+    {
+      faviconTypeError: 'Page Error: Expected type string for favicon url.',
+      titleTypeError: 'Page Error: Expected type string for title.'
+    };
+
+    if(options.favicon) this.favicon = options.favicon;
+    if(options.title) this.title = options.title;
+  }
+
+  /**
+   * Get property to return the current page title (from document.title).
+   * @return {string} The current document title.
+   */
+  get title() 
+  {
+    return document.title;
+  }
+
+  /**
+   * Set property to change the page title (sets document.title).
+   * @param {string} value - The new title string.
+   */
+  set title(value) 
+  {
+    if (!typechecker.check({ type: 'string', value })) console.error(this.#errors.titleTypeError);
+    document.title = value;
+  }
+
+  /** 
+   * Get property to return the current favicon URL from <head>.
+   * @return {string|null} The href of the favicon link, or null if none exists.
+   */
+  get favicon() 
+  {
+    const link = document.querySelector("link[rel~='icon']");
+    return link ? link.href : null;
+  }
+
+  /** 
+   * Set property to change the favicon in <head>.
+   * Creates a <link rel="icon"> if none exists.
+   * @param {string} value - The favicon path or URL.
+   */
+  set favicon(value) 
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.faviconTypeError);
+
+    let link = document.querySelector("link[rel~='icon']");
+    if(!link) 
+    {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+
+    link.href = value;
+  }
+
+  /** Public method to present the page by attaching it to document.body. */
+  present() 
+  {
+    document.body.appendChild(this.element);
+  }
+}
+
 ///////////////////////////////////////////////////////////
 
 globalThis.typechecker = TypeChecker.getInstance();
 globalThis.color = ColorManager.getInstance();
+globalThis.ui = UserInterface.getInstance();
 
 ui.register({ name: 'Component', constructor: Component });
