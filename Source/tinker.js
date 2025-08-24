@@ -676,14 +676,29 @@ class Page
   {
     document.body.appendChild(this.main.element);
   }
+
+  /** Public method to remove the header element from the DOM if it exists. */
+  removeHeader()
+  {
+    if(this.header && this.header.element && this.header.element.parentNode)
+    {
+      this.header.element.parentNode.removeChild(this.header.element);
+      this.header = null;
+    }
+  }
 }
 
 /////////////////////////////////////////////////
 
+/** Class representing the Header Component. */
 class Header extends Component
 {
   #errors;
 
+  /**
+   * Creates the header object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
   constructor(options = {})
   {
     super({ tagName: 'header', options: options });

@@ -13,3 +13,5 @@ class HomePage extends ui.Page
 let page = new HomePage();
 page.addHeader({ header: new ui.Header() });
 page.present();
+
+setTimeout(() => { page.removeHeader(); }, 3000);
