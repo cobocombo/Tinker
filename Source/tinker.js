@@ -553,6 +553,197 @@ class Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Card Component. */
+class Card extends Component
+{
+  /**
+   * Creates the card object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'article', options: options });
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the Footer Component. */
+class Footer extends Component
+{
+  #errors;
+
+  /**
+   * Creates the footer object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {})
+  {
+    super({ tagName: 'footer', options: options });
+
+    this.#errors = 
+    {
+      containerInvalidError: `Footer Error: Expected values 'fluid' or 'fixed' for container.`,
+      containerTypeError: 'Footer Error: Expected type string for container.',
+    };
+
+    this.container = options.container || 'fluid';
+  }
+
+  /**
+   * Get property to return the current container layout type of the footer. Checks the class list of the main element.
+   * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
+   */
+  get container()
+  {
+    if(this.getClasses().includes('container-fluid')) return 'fluid';
+    else if(this.getClasses().includes('container')) return 'fixed';
+    else return null;
+  }
+
+  /**
+   * Set property to change the container layout type of the footer. Removes any existing container classes and applies the requested one.
+   * @param {string} value - Accepts 'fluid' or 'fixed'.
+   */
+  set container(value)
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.containerTypeError);
+    this.removeClass({ className: 'container-fluid' });
+    this.removeClass({ className: 'container' });
+    if(value === 'fluid') this.addClass({ className: 'container-fluid' });
+    else if(value === 'fixed') this.addClass({ className: 'container' });
+    else console.error(this.#errors.containerInvalidError);
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the Header Component. */
+class Header extends Component
+{
+  #errors;
+
+  /**
+   * Creates the header object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {})
+  {
+    super({ tagName: 'header', options: options });
+
+    this.#errors = 
+    {
+      containerInvalidError: `Header Error: Expected values 'fluid' or 'fixed' for container.`,
+      containerTypeError: 'Header Error: Expected type string for container.',
+    };
+
+    this.container = options.container || 'fluid';
+  }
+
+  /**
+   * Get property to return the current container layout type of the header. Checks the class list of the main element.
+   * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
+   */
+  get container()
+  {
+    if(this.getClasses().includes('container-fluid')) return 'fluid';
+    else if(this.getClasses().includes('container')) return 'fixed';
+    else return null;
+  }
+
+  /**
+   * Set property to change the container layout type of the header. Removes any existing container classes and applies the requested one.
+   * @param {string} value - Accepts 'fluid' or 'fixed'.
+   */
+  set container(value)
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.containerTypeError);
+    this.removeClass({ className: 'container-fluid' });
+    this.removeClass({ className: 'container' });
+    if(value === 'fluid') this.addClass({ className: 'container-fluid' });
+    else if(value === 'fixed') this.addClass({ className: 'container' });
+    else console.error(this.#errors.containerInvalidError);
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the Heading Component. */
+class Heading extends Component 
+{
+  #errors;
+  #rawText;
+
+  /**
+   * Creates the heading object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   * Requires: options.level (1–6)
+   */
+  constructor(options = {}) 
+  {
+    if(!options.level || options.level < 1 || options.level > 6)
+    {
+      console.error('Heading Error: Must specify a level 1-6 for a new heading. Using 1 as a default.');
+      options.level = 1;
+    }
+
+    super({ tagName: `h${options.level}`, options: options });
+
+    this.#errors = 
+    {
+      textTypeError: 'Heading Error: Expected type string for text.',
+      textColorInvalidError: 'Heading Error: Invalid color value provided for text color.',
+      textColorTypeError: 'Heading Error: Expected type string for textColor.'
+    };
+
+    this.#rawText = '';
+    if(options.text) this.text = options.text;
+    if(options.textColor) this.textColor = options.textColor;
+  }
+
+  /** 
+   * Get property to return the heading's text value.
+   * @return {string} The heading's text value.
+   */
+  get text() 
+  {
+    return this.#rawText;
+  }
+
+  /** 
+   * Set property to set the heading's text value.
+   * @param {string} value - The heading's text value.
+   */
+  set text(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
+    this.#rawText = value;
+    this.element.textContent = value;
+  }
+
+  /** 
+   * Get property to return the heading's text color value.
+   * @return {string} The heading's text color value.
+   */
+  get textColor() 
+  {
+    return this.element.style.color;
+  }
+
+  /** 
+   * Set property to set the heading's text color value.
+   * @param {string} value - The heading's text color value. Will throw an error if invalid.
+   */
+  set textColor(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.element.style.color = value;
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Page Component. */
 class Page 
 {
@@ -720,182 +911,6 @@ class Page
 
 /////////////////////////////////////////////////
 
-/** Class representing the Header Component. */
-class Header extends Component
-{
-  #errors;
-
-  /**
-   * Creates the header object.
-   * @param {object} options - Custom options object to init properties from the constructor.
-   */
-  constructor(options = {})
-  {
-    super({ tagName: 'header', options: options });
-
-    this.#errors = 
-    {
-      containerInvalidError: `Header Error: Expected values 'fluid' or 'fixed' for container.`,
-      containerTypeError: 'Header Error: Expected type string for container.',
-    };
-
-    this.container = options.container || 'fluid';
-  }
-
-  /**
-   * Get property to return the current container layout type of the header. Checks the class list of the main element.
-   * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
-   */
-  get container()
-  {
-    if(this.getClasses().includes('container-fluid')) return 'fluid';
-    else if(this.getClasses().includes('container')) return 'fixed';
-    else return null;
-  }
-
-  /**
-   * Set property to change the container layout type of the header. Removes any existing container classes and applies the requested one.
-   * @param {string} value - Accepts 'fluid' or 'fixed'.
-   */
-  set container(value)
-  {
-    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.containerTypeError);
-    this.removeClass({ className: 'container-fluid' });
-    this.removeClass({ className: 'container' });
-    if(value === 'fluid') this.addClass({ className: 'container-fluid' });
-    else if(value === 'fixed') this.addClass({ className: 'container' });
-    else console.error(this.#errors.containerInvalidError);
-  }
-}
-
-/////////////////////////////////////////////////
-
-/** Class representing the Footer Component. */
-class Footer extends Component
-{
-  #errors;
-
-  /**
-   * Creates the footer object.
-   * @param {object} options - Custom options object to init properties from the constructor.
-   */
-  constructor(options = {})
-  {
-    super({ tagName: 'footer', options: options });
-
-    this.#errors = 
-    {
-      containerInvalidError: `Footer Error: Expected values 'fluid' or 'fixed' for container.`,
-      containerTypeError: 'Footer Error: Expected type string for container.',
-    };
-
-    this.container = options.container || 'fluid';
-  }
-
-  /**
-   * Get property to return the current container layout type of the footer. Checks the class list of the main element.
-   * @return {string|null} Returns 'fluid' if using 'container-fluid', 'fixed' if using 'container', or null if neither class is present.
-   */
-  get container()
-  {
-    if(this.getClasses().includes('container-fluid')) return 'fluid';
-    else if(this.getClasses().includes('container')) return 'fixed';
-    else return null;
-  }
-
-  /**
-   * Set property to change the container layout type of the footer. Removes any existing container classes and applies the requested one.
-   * @param {string} value - Accepts 'fluid' or 'fixed'.
-   */
-  set container(value)
-  {
-    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.containerTypeError);
-    this.removeClass({ className: 'container-fluid' });
-    this.removeClass({ className: 'container' });
-    if(value === 'fluid') this.addClass({ className: 'container-fluid' });
-    else if(value === 'fixed') this.addClass({ className: 'container' });
-    else console.error(this.#errors.containerInvalidError);
-  }
-}
-
-/////////////////////////////////////////////////
-
-/** Class representing the Heading Component. */
-class Heading extends Component 
-{
-  #errors;
-  #rawText;
-
-  /**
-   * Creates the heading object.
-   * @param {object} options - Custom options object to init properties from the constructor.
-   * Requires: options.level (1–6)
-   */
-  constructor(options = {}) 
-  {
-    if(!options.level || options.level < 1 || options.level > 6)
-    {
-      console.error('Heading Error: Must specify a level 1-6 for a new heading. Using 1 as a default.');
-      options.level = 1;
-    }
-    
-    super({ tagName: `h${options.level}`, options: options });
-
-    this.#errors = 
-    {
-      textTypeError: 'Heading Error: Expected type string for text.',
-      textColorInvalidError: 'Heading Error: Invalid color value provided for text color.',
-      textColorTypeError: 'Heading Error: Expected type string for textColor.'
-    };
-
-    this.#rawText = '';
-    if(options.text) this.text = options.text;
-    if(options.textColor) this.textColor = options.textColor;
-  }
-
-  /** 
-   * Get property to return the heading's text value.
-   * @return {string} The heading's text value.
-   */
-  get text() 
-  {
-    return this.#rawText;
-  }
-
-  /** 
-   * Set property to set the heading's text value.
-   * @param {string} value - The heading's text value.
-   */
-  set text(value) 
-  {
-    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
-    this.#rawText = value;
-    this.element.textContent = value;
-  }
-
-  /** 
-   * Get property to return the heading's text color value.
-   * @return {string} The heading's text color value.
-   */
-  get textColor() 
-  {
-    return this.element.style.color;
-  }
-
-  /** 
-   * Set property to set the heading's text color value.
-   * @param {string} value - The heading's text color value. Will throw an error if invalid.
-   */
-  set textColor(value) 
-  {
-    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textColorTypeError);
-    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
-    this.element.style.color = value;
-  }
-}
-
-/////////////////////////////////////////////////
-
 /** Class representing the Paragraph Component. */
 class Paragraph extends Component 
 {
@@ -1009,16 +1024,18 @@ globalThis.typechecker = TypeChecker.getInstance();
 globalThis.color = ColorManager.getInstance();
 globalThis.ui = UserInterface.getInstance();
 
+typechecker.register({ name: 'card', constructor: Card });
 typechecker.register({ name: 'component', constructor: Component });
-typechecker.register({ name: 'page', constructor: Page });
-typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'footer', constructor: Footer });
+typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'heading', constructor: Heading });
+typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 
+ui.register({ name: 'Card', constructor: Card });
 ui.register({ name: 'Component', constructor: Component });
-ui.register({ name: 'Page', constructor: Page });
-ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Footer', constructor: Footer });
+ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Heading', constructor: Heading });
+ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
