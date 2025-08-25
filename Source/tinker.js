@@ -450,8 +450,8 @@ class Component
    */
   addComponent({ component } = {}) 
   {
-    if(typechecker.check({ type: 'component', value: child })) this.#element.appendChild(component.#element);
-    else this.#element.appendChild(child); 
+    if(typechecker.check({ type: 'component', value: component })) this.#element.appendChild(component.element);
+    else this.#element.appendChild(component); 
   }
   
   /** Public method to add the disabled atrribute to the component. */
@@ -569,6 +569,7 @@ class Page
   {
     this.#errors = 
     {
+      componentTypeError: 'Page Error: Expected a value of type Component for component.',
       containerInvalidError: `Page Error: Expected values 'fluid' or 'fixed' for container.`,
       containerTypeError: 'Page Error: Expected type string for container.',
       faviconTypeError: 'Page Error: Expected type string for favicon url.',
@@ -662,6 +663,16 @@ class Page
       document.head.appendChild(link);
     }
     link.href = value;
+  }
+
+  /** 
+   * Public method to add a new component as a child in main content DOM of the Page.
+   * @param {Header} header - The header component to insert.
+   */
+  addComponent({ component } = {})
+  {
+    if(!typechecker.check({ type: 'component', value: component })) console.error(this.#errors.componentTypeError);
+    this.main.addComponent({ component: component });
   }
 
   /** 
@@ -807,6 +818,116 @@ class Footer extends Component
   }
 }
 
+/////////////////////////////////////////////////
+
+/** Class representing the Paragraph Component. */
+class Paragraph extends Component 
+{
+  #errors;
+  #rawText;
+
+  /**
+   * Creates the paragraph object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'p', options: options });
+
+    this.#errors = 
+    {
+      textTypeError: 'Paragraph Error: Expected type string for text.',
+      textColorInvalidError: 'Paragraph Error: Invalid color value provided for text color.',
+      textColorTypeError: 'Paragraph Error: Expected type string for textColor.'
+    };
+
+    this.#rawText = '';
+    if(options.text) this.text = options.text;
+    if(options.textColor) this.textColor = options.textColor;
+  }
+
+  /** 
+   * Get property to return the paragraph's text value.
+   * @return {string} The paragraph's text value. If inline elements were used the same text will be returned. 
+   */
+  get text() 
+  {
+    if(!this.#rawText) return '';
+    let raw = this.element.innerHTML;
+    raw = raw.replace(
+      /<abbr title="(.+?)">(.+?)<\/abbr>/g,
+      '[abbr:$2|$1]'
+    );
+
+    let tagMap = [
+      'strong', 'b', 'i', 'em', 'cite',
+      'del', 'ins', 'kbd', 'mark',
+      's', 'small', 'sub', 'sup', 'u'
+    ];
+
+    for(let tag of tagMap) 
+    {
+      let regex = new RegExp(`<${tag}>(.+?)<\/${tag}>`, 'g');
+      raw = raw.replace(regex, `[${tag}:$1]`);
+    }
+
+    return raw;
+  }
+
+  /** 
+   * Set property to set the paragraph's text value.
+   * @param {string} value - The paragraph's text value. Supports inline element support through bracket notation.
+   * Ex: This is a [em:very] [strong:strong] paragraph! 
+   * It Supports the following tags: strong, b, i, em, cite, del, ins, kbd, mark, s, small, sub, sup, u.
+   */
+  set text(value) 
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.textTypeError);
+
+    this.#rawText = value;
+    let tagMap = [
+      'strong', 'b', 'i', 'em', 'cite',
+      'del', 'ins', 'kbd', 'mark',
+      's', 'small', 'sub', 'sup', 'u'
+    ];
+
+    let formatted = value;
+    formatted = formatted.replace(
+      /\[abbr:(.+?)\|(.+?)\]/g,
+      '<abbr title="$2">$1</abbr>'
+    );
+
+    for(let tag of tagMap) 
+    {
+      let regex = new RegExp(`\\[${tag}:(.+?)\\]`, 'g');
+      formatted = formatted.replace(regex, `<${tag}>$1</${tag}>`);
+    }
+
+    this.element.innerHTML = formatted;
+  }
+  
+  /** 
+   * Get property to return the paragraph's text color value.
+   * @return {string} The paragraph's text color value.
+   */
+  get textColor() 
+  {
+    return this.element.style.color;
+  }
+
+  /** 
+   * Set property to set the paragraph's text color value.
+   * @param {string} value - The paragraph's text color value. Will throw an error if the color value is not valid.
+   */
+  set textColor(value) 
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.textColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.element.style.color = value;
+  }
+}
+
+
 ///////////////////////////////////////////////////////////
 
 globalThis.typechecker = TypeChecker.getInstance();
@@ -817,7 +938,10 @@ typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'footer', constructor: Footer });
+typechecker.register({ name: 'paragraph', constructor: Paragraph });
+
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Footer', constructor: Footer });
+ui.register({ name: 'Paragraph', constructor: Paragraph });
