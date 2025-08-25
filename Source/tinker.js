@@ -1018,6 +1018,21 @@ class Paragraph extends Component
   }
 }
 
+/////////////////////////////////////////////////
+
+/** Class representing the Section Component. */
+class Section extends Component
+{
+  /**
+   * Creates the section object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'section', options: options });
+  }
+}
+
 ///////////////////////////////////////////////////////////
 
 globalThis.typechecker = TypeChecker.getInstance();
@@ -1031,6 +1046,7 @@ typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'heading', constructor: Heading });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
+typechecker.register({ name: 'section', constructor: Section });
 
 ui.register({ name: 'Card', constructor: Card });
 ui.register({ name: 'Component', constructor: Component });
@@ -1039,3 +1055,4 @@ ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Heading', constructor: Heading });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
+ui.register({ name: 'Section', constructor: Section });
