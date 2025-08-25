@@ -581,7 +581,7 @@ class Page
 
     if(document.body.querySelector('main')) 
     {
-      console.log(this.#errors.pageExistsError);
+      console.error(this.#errors.pageExistsError);
       return;
     }
 
@@ -820,6 +820,82 @@ class Footer extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Heading Component. */
+class Heading extends Component 
+{
+  #errors;
+  #rawText;
+
+  /**
+   * Creates the heading object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   * Requires: options.level (1–6)
+   */
+  constructor(options = {}) 
+  {
+    if(!options.level || options.level < 1 || options.level > 6)
+    {
+      console.error('Heading Error: Must specify a level 1-6 for a new heading. Using 1 as a default.');
+      options.level = 1;
+    }
+    
+    super({ tagName: `h${options.level}`, options: options });
+
+    this.#errors = 
+    {
+      textTypeError: 'Heading Error: Expected type string for text.',
+      textColorInvalidError: 'Heading Error: Invalid color value provided for text color.',
+      textColorTypeError: 'Heading Error: Expected type string for textColor.'
+    };
+
+    this.#rawText = '';
+    if(options.text) this.text = options.text;
+    if(options.textColor) this.textColor = options.textColor;
+  }
+
+  /** 
+   * Get property to return the heading's text value.
+   * @return {string} The heading's text value.
+   */
+  get text() 
+  {
+    return this.#rawText;
+  }
+
+  /** 
+   * Set property to set the heading's text value.
+   * @param {string} value - The heading's text value.
+   */
+  set text(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
+    this.#rawText = value;
+    this.element.textContent = value;
+  }
+
+  /** 
+   * Get property to return the heading's text color value.
+   * @return {string} The heading's text color value.
+   */
+  get textColor() 
+  {
+    return this.element.style.color;
+  }
+
+  /** 
+   * Set property to set the heading's text color value.
+   * @param {string} value - The heading's text color value. Will throw an error if invalid.
+   */
+  set textColor(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.element.style.color = value;
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Paragraph Component. */
 class Paragraph extends Component 
 {
@@ -905,7 +981,7 @@ class Paragraph extends Component
 
     this.element.innerHTML = formatted;
   }
-  
+
   /** 
    * Get property to return the paragraph's text color value.
    * @return {string} The paragraph's text color value.
@@ -927,7 +1003,6 @@ class Paragraph extends Component
   }
 }
 
-
 ///////////////////////////////////////////////////////////
 
 globalThis.typechecker = TypeChecker.getInstance();
@@ -938,10 +1013,12 @@ typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'footer', constructor: Footer });
+typechecker.register({ name: 'heading', constructor: Heading });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Footer', constructor: Footer });
+ui.register({ name: 'Heading', constructor: Heading });
 ui.register({ name: 'Paragraph', constructor: Paragraph });

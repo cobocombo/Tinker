@@ -11,7 +11,8 @@ class HomePage extends ui.Page
     this.addHeader({ header: new ui.Header() });
     this.addFooter({ footer: new ui.Footer() });
 
-    this.addComponent({ component: new ui.Paragraph({ text: 'This is a [em:very] [strong:strong] paragraph!', textColor: 'red' }) })
+    this.addComponent({ component: new ui.Heading({ level: 1, text: 'This is a heading!' }) });
+    this.addComponent({ component: new ui.Paragraph({ text: 'This is a [em:very] [strong:strong] paragraph!' }) });
   }
 }
 
