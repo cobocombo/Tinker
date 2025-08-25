@@ -18,10 +18,15 @@ class HomePage extends ui.Page
     section.addComponent({ component: new ui.Heading({ level: 1, text: 'This is a new section!' }) });
     section.addComponent({ component: new ui.Paragraph({ text: 'This is a paragraph inside a section!' }) });
 
+    let hgroup = new ui.HeadingGroup();
+    hgroup.addComponent({ component: new ui.Heading({ level: 1, text: 'This is a new section in heading group!' }) });
+    hgroup.addComponent({ component: new ui.Paragraph({ text: 'This is a paragraph inside a heading group!' }) });
+
     this.addComponent({ component: new ui.Heading({ level: 1, text: 'This is a heading!' }) });
     this.addComponent({ component: new ui.Paragraph({ text: 'This is a [em:very] [strong:strong] paragraph!' }) });
     this.addComponent({ component: card });
     this.addComponent({ component: section });
+    this.addComponent({ component: hgroup });
   }
 }
 

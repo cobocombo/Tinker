@@ -744,6 +744,21 @@ class Heading extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the HeadingGroup Component. */
+class HeadingGroup extends Component
+{
+  /**
+   * Creates the heading group object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'hgroup', options: options });
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Page Component. */
 class Page 
 {
@@ -1044,6 +1059,7 @@ typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'footer', constructor: Footer });
 typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'heading', constructor: Heading });
+typechecker.register({ name: 'heading-group', constructor: HeadingGroup });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'section', constructor: Section });
@@ -1053,6 +1069,7 @@ ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Footer', constructor: Footer });
 ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Heading', constructor: Heading });
+ui.register({ name: 'HeadingGroup', constructor: HeadingGroup });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Section', constructor: Section });
