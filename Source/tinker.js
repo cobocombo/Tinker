@@ -568,6 +568,21 @@ class Card extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Divider Component. */
+class Divider extends Component
+{
+  /**
+   * Creates the divider object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'hr', options: options });
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Footer Component. */
 class Footer extends Component
 {
@@ -1056,6 +1071,7 @@ globalThis.ui = UserInterface.getInstance();
 
 typechecker.register({ name: 'card', constructor: Card });
 typechecker.register({ name: 'component', constructor: Component });
+typechecker.register({ name: 'divider', constructor: Divider });
 typechecker.register({ name: 'footer', constructor: Footer });
 typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'heading', constructor: Heading });
@@ -1066,6 +1082,7 @@ typechecker.register({ name: 'section', constructor: Section });
 
 ui.register({ name: 'Card', constructor: Card });
 ui.register({ name: 'Component', constructor: Component });
+ui.register({ name: 'Divider', constructor: Divider });
 ui.register({ name: 'Footer', constructor: Footer });
 ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Heading', constructor: Heading });

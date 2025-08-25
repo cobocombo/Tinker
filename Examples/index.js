@@ -26,6 +26,7 @@ class HomePage extends ui.Page
     this.addComponent({ component: new ui.Paragraph({ text: 'This is a [em:very] [strong:strong] paragraph!' }) });
     this.addComponent({ component: card });
     this.addComponent({ component: section });
+    this.addComponent({ component: new ui.Divider() });
     this.addComponent({ component: hgroup });
   }
 }
