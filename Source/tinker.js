@@ -553,6 +553,21 @@ class Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Blockquote Component. */
+class Blockquote extends Component
+{
+  /**
+   * Creates the blockquote object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'blockquote', options: options });
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Card Component. */
 class Card extends Component
 {
@@ -1069,6 +1084,7 @@ globalThis.typechecker = TypeChecker.getInstance();
 globalThis.color = ColorManager.getInstance();
 globalThis.ui = UserInterface.getInstance();
 
+typechecker.register({ name: 'blockquote', constructor: Blockquote });
 typechecker.register({ name: 'card', constructor: Card });
 typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'divider', constructor: Divider });
@@ -1080,6 +1096,7 @@ typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'section', constructor: Section });
 
+ui.register({ name: 'Blockquote', constructor: Blockquote });
 ui.register({ name: 'Card', constructor: Card });
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Divider', constructor: Divider });

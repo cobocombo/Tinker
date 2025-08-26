@@ -22,12 +22,18 @@ class HomePage extends ui.Page
     hgroup.addComponent({ component: new ui.Heading({ level: 1, text: 'This is a new section in heading group!' }) });
     hgroup.addComponent({ component: new ui.Paragraph({ text: 'This is a paragraph inside a heading group!' }) });
 
+    let bquote = new ui.Blockquote();
+    bquote.addComponent({ component: new ui.Heading({ level: 1, text: 'This is a new section in blockquote!' }) });
+    bquote.addComponent({ component: new ui.Paragraph({ text: 'This is a paragraph inside a blockquote!' }) });
+
     this.addComponent({ component: new ui.Heading({ level: 1, text: 'This is a heading!' }) });
     this.addComponent({ component: new ui.Paragraph({ text: 'This is a [em:very] [strong:strong] paragraph!' }) });
     this.addComponent({ component: card });
     this.addComponent({ component: section });
     this.addComponent({ component: new ui.Divider() });
     this.addComponent({ component: hgroup });
+    this.addComponent({ component: new ui.Divider() });
+    this.addComponent({ component: bquote });
   }
 }
 
