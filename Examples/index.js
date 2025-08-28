@@ -34,6 +34,7 @@ class HomePage extends ui.Page
     this.addComponent({ component: hgroup });
     this.addComponent({ component: new ui.Divider() });
     this.addComponent({ component: bquote });
+    this.addComponent({ component: new ui.Button({ styles: ['danger']}) });
   }
 }
 

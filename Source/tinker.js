@@ -568,6 +568,81 @@ class Blockquote extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Button Component. */
+class Button extends Component 
+{
+  #errors;
+  #supportedStyles;
+  #styles;
+
+  /**
+   * Creates the button object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'button', options: options });
+
+    this.#errors = 
+    {
+      stylesTypeError: 'Button Error: Expected styles to be an array of strings.',
+      invalidStyleError: style => `Button Error: Unsupported style "${style}".`
+    };
+
+    // Define supported styles
+    this.#supportedStyles = 
+    [
+      "outline", 
+      "secondary", 
+      "contrast", 
+      "primary", 
+      "danger", 
+      "success",
+      "warning"
+    ];
+
+    this.#styles = [];
+    if(options.styles) this.styles = options.styles;
+  }
+
+  /**
+   * Get current styles as array.
+   * @returns {string[]}
+   */
+  get styles() 
+  {
+    return [...this.#styles];
+  }
+
+  /**
+   * Set button styles (overwrites current styles).
+   * @param {string[]} styles
+   */
+  set styles(value) 
+  {
+    if(!typechecker.check({ type: 'array', value })) console.error(this.#errors.stylesTypeError);
+    this.element.className = "";
+    this.#styles = value.filter(style => 
+    {
+      if(this.#supportedStyles.includes(style)) 
+      {
+        this.element.classList.add(style);
+        if(style == 'danger') this.backgroundColor = '#E42723';
+        if(style == 'success') this.backgroundColor = '#009A46';
+        if(style == 'warning') this.backgroundColor = '#DF6E18';
+        return true;
+      } 
+      else 
+      {
+        console.error(this.#errors.invalidStyleError(style));
+        return false;
+      }
+    });
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Card Component. */
 class Card extends Component
 {
@@ -1085,6 +1160,7 @@ globalThis.color = ColorManager.getInstance();
 globalThis.ui = UserInterface.getInstance();
 
 typechecker.register({ name: 'blockquote', constructor: Blockquote });
+typechecker.register({ name: 'button', constructor: Button });
 typechecker.register({ name: 'card', constructor: Card });
 typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'divider', constructor: Divider });
@@ -1097,6 +1173,7 @@ typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'section', constructor: Section });
 
 ui.register({ name: 'Blockquote', constructor: Blockquote });
+ui.register({ name: 'Button', constructor: Button });
 ui.register({ name: 'Card', constructor: Card });
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Divider', constructor: Divider });
