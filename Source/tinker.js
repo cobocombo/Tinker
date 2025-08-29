@@ -585,28 +585,26 @@ class Button extends Component
 
     this.#errors = 
     {
+      invalidStyleError: style => `Button Error: Unsupported style "${style}".`,
       stylesTypeError: 'Button Error: Expected styles to be an array of strings.',
-      invalidStyleError: style => `Button Error: Unsupported style "${style}".`
+      textTypeError: 'Paragraph Error: Expected type string for text.',
     };
 
-    // Define supported styles
     this.#supportedStyles = 
     [
       "outline", 
       "secondary", 
       "contrast", 
-      "primary", 
-      "danger", 
-      "success",
-      "warning"
+      "primary"
     ];
 
     this.#styles = [];
     if(options.styles) this.styles = options.styles;
+    if(options.text) this.text = options.text;
   }
 
   /**
-   * Get current styles as array.
+   * Get property to get the current button styles.
    * @returns {string[]}
    */
   get styles() 
@@ -615,21 +613,18 @@ class Button extends Component
   }
 
   /**
-   * Set button styles (overwrites current styles).
-   * @param {string[]} styles
+   * Set property to set the button styles (overwrites current styles).
+   * @param {string[]} value - The array of styles as strings to apply to the button.
    */
   set styles(value) 
   {
-    if(!typechecker.check({ type: 'array', value })) console.error(this.#errors.stylesTypeError);
-    this.element.className = "";
+    if(!typechecker.check({ type: 'array', value: value })) console.error(this.#errors.stylesTypeError);
+    this.element.className = '';
     this.#styles = value.filter(style => 
     {
       if(this.#supportedStyles.includes(style)) 
       {
         this.element.classList.add(style);
-        if(style == 'danger') this.backgroundColor = '#E42723';
-        if(style == 'success') this.backgroundColor = '#009A46';
-        if(style == 'warning') this.backgroundColor = '#DF6E18';
         return true;
       } 
       else 
@@ -638,6 +633,25 @@ class Button extends Component
         return false;
       }
     });
+  }
+
+  /**
+   * Get property to get the current text of the button.
+   * @returns {string}
+   */
+  get text()
+  {
+    return this.element.textContent;
+  }
+
+  /**
+   * Set property to set button text.
+   * @param {string} value - Text of the button.
+   */
+  set text(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
+    this.element.textContent = value;
   }
 }
 
