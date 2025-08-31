@@ -672,6 +672,62 @@ class Card extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Column Component. */
+class Column extends Component
+{
+  #errors;
+
+  /**
+   * Creates the column object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'div', options: options });
+
+    this.#errors = 
+    {
+      alignTypeError: 'Column Error: Expected type string for align.'
+    };
+
+    this.align = options.align || 'center';
+    if(options.component) this.addComponent({ component: options.component });
+  }
+
+  /**
+   * Set horizontal alignment of column content.
+   * @param {string} value - 'left' | 'center' | 'right'
+   */
+  set align(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.alignTypeError);
+    this.element.style.display = 'flex';
+    if(value === 'left') this.style.justifyContent = 'flex-start';
+    else if(value === 'right') this.element.style.justifyContent = 'flex-end';
+    else this.element.style.justifyContent = 'center';
+  }
+
+  /** 
+   * Get property to return the column's align value.
+   * @return {string} The column's align value.
+   */
+  get align() 
+  {
+    switch(this.element.style.justifyContent) 
+    {
+      case 'flex-start':
+        return 'left';
+      case 'flex-end':
+        return 'right';
+      case 'center':
+      default:
+        return 'center';
+    }
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Divider Component. */
 class Divider extends Component
 {
@@ -941,7 +997,7 @@ class Icon extends Component
    */
   set name(value) 
   {
-    if (!typechecker.check({ type: 'string', value })) console.error(this.#errors.nameTypeError);
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.nameTypeError);
     this.element.classList.forEach(cls => this.element.classList.remove(cls));
     value.trim().split(/\s+/).forEach(cls => this.element.classList.add(cls));
     this.#name = value.trim();
@@ -1245,6 +1301,40 @@ class Paragraph extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Row Component. */
+class Row extends Component
+{
+  #errors;
+
+  /**
+   * Creates the row object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'div', options: options });
+
+    this.#errors = 
+    {
+      columnTyperError: 'Row Error: Expected type Column for column.'
+    };
+
+    this.addClass({ className: 'grid' });
+  }
+
+  /**
+   * Public method to add a column to a row in the grid system.
+   * @param {Column} column - Column to be added to the row object.
+   */
+  addColumn({ column })
+  {
+    if(!typechecker.check({ type: 'column', value: column })) console.error(this.#errors.columnTyperError);
+    this.addComponent({ component: column });
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Section Component. */
 class Section extends Component
 {
@@ -1267,6 +1357,7 @@ globalThis.ui = UserInterface.getInstance();
 typechecker.register({ name: 'blockquote', constructor: Blockquote });
 typechecker.register({ name: 'button', constructor: Button });
 typechecker.register({ name: 'card', constructor: Card });
+typechecker.register({ name: 'column', constructor: Column });
 typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'divider', constructor: Divider });
 typechecker.register({ name: 'footer', constructor: Footer });
@@ -1276,11 +1367,13 @@ typechecker.register({ name: 'heading-group', constructor: HeadingGroup });
 typechecker.register({ name: 'icon', constructor: Icon });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
+typechecker.register({ name: 'row', constructor: Row });
 typechecker.register({ name: 'section', constructor: Section });
 
 ui.register({ name: 'Blockquote', constructor: Blockquote });
 ui.register({ name: 'Button', constructor: Button });
 ui.register({ name: 'Card', constructor: Card });
+ui.register({ name: 'Column', constructor: Column });
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Divider', constructor: Divider });
 ui.register({ name: 'Footer', constructor: Footer });
@@ -1290,4 +1383,5 @@ ui.register({ name: 'HeadingGroup', constructor: HeadingGroup });
 ui.register({ name: 'Icon', constructor: Icon });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
+ui.register({ name: 'Row', constructor: Row });
 ui.register({ name: 'Section', constructor: Section });
