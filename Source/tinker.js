@@ -587,7 +587,7 @@ class Button extends Component
     {
       invalidStyleError: style => `Button Error: Unsupported style "${style}".`,
       stylesTypeError: 'Button Error: Expected styles to be an array of strings.',
-      textTypeError: 'Button Error: Expected type string for text.',
+      textTypeError: 'Button Error: Expected type string for text.'
     };
 
     this.#supportedStyles = 
@@ -976,7 +976,7 @@ class Icon extends Component
    */
   set color(value)
   { 
-    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.colorTypeError);
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.colorTypeError);
     if(!color.isValid({ color: value })) console.error(this.#errors.colorInvalidError);
     this.element.style.color = value;
   }
@@ -1022,6 +1022,171 @@ class Icon extends Component
     this.style.fontSize = value;
   }
 }
+
+/////////////////////////////////////////////////
+
+/** Class representing the Link Component. */
+class Link extends Component
+{
+  #errors;
+  #supportedStyles;
+  #styles;
+  #target;
+
+  /**
+   * Creates the link object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'a', options: options });
+
+    this.#errors = 
+    {
+      colorInvalidError: 'Icon Error: Invalid color value provided for color.',
+      colorTypeError: 'Icon Error: Expected type string for color.',
+      invalidStyleError: style => `Link Error: Unsupported style "${style}".`,
+      invalidTargetError: target => `Link Error: Unsupported target "${target}".`,
+      stylesTypeError: 'Link Error: Expected styles to be an array of strings.',
+      targetTypeError: 'Link Error: Expected type string for target.',
+      textTypeError: 'Link Error: Expected type string for text.',
+      urlTypeError: 'Link Error: Expected type string for url.'
+    };
+
+    this.#supportedStyles = 
+    [
+      'secondary', 
+      'contrast', 
+      'primary'
+    ];
+
+    this.#styles = [];
+    this.target = options.target || 'self';
+    if(options.color) this.color = options.color;
+    if(options.styles) this.styles = options.styles;
+    if(options.text) this.text = options.text;
+    if(options.url) this.url = options.url;
+  }
+
+  /** 
+   * Get property to return the link's color value.
+   * @return {string} The link's color value.
+   */
+  get color()
+  {
+    return this.style.color;
+  }
+
+  /** 
+   * Set property to set the link's color value.
+   * @param {string} value - The link's color value. Will throw an error if the color value is not valid.
+   */
+  set color(value)
+  { 
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.colorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.colorInvalidError);
+    this.style.setProperty('--pico-underline', value);
+    this.style.color = value;
+  }
+
+  /**
+   * Get property to get the current link styles.
+   * @returns {string[]}
+   */
+  get styles() 
+  {
+    return [...this.#styles];
+  }
+
+  /**
+   * Set property to set the link styles (overwrites current styles).
+   * @param {string[]} value - The array of styles as strings to apply to the link.
+   */
+  set styles(value) 
+  {
+    if(!typechecker.check({ type: 'array', value: value })) console.error(this.#errors.stylesTypeError);
+    this.element.className = '';
+    this.#styles = value.filter(style => 
+    {
+      if(this.#supportedStyles.includes(style)) 
+      {
+        this.element.classList.add(style);
+        return true;
+      } 
+      else 
+      {
+        console.error(this.#errors.invalidStyleError(style));
+        return false;
+      }
+    });
+  }
+
+  /**
+   * Get property to get the target type of the link.
+   * @returns {string}
+   */
+  get target()
+  {
+    return this.#target;
+  }
+
+  /**
+   * Set property to set the link target.
+   * @param {string} value - Target of where the link should be opened.
+   */
+  set target(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.targetTypeError);
+
+    if(value === 'blank') value = '_blank';
+    else if(value === 'self') value = '_self';
+    else if(value === 'parent') value = '_parent';
+    else if(value === 'top') value = '_top';
+    else console.error(this.#errors.invalidTargetError(value));
+
+    this.setAttribute({ key: 'target', value: value });
+    this.#target = value;
+  }
+
+  /**
+   * Get property to get the current text of the link.
+   * @returns {string}
+   */
+  get text()
+  {
+    return this.element.textContent;
+  }
+
+  /**
+   * Set property to set link text.
+   * @param {string} value - Text of the link.
+   */
+  set text(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
+    this.element.textContent = value;
+  }
+
+  /** 
+   * Get property to return the link's url value.
+   * @return {string} The link's url value.
+   */
+  get url()
+  {
+    return this.getAttribute({ key: 'href'});
+  }
+
+   /**
+   * Set property to set the url of the link. 
+   * @param {string} value - Url of the link.
+   */
+  set url(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.urlTypeError);
+    this.setAttribute({ key: 'href', value: value });
+  }
+}
+
 
 /////////////////////////////////////////////////
 
@@ -1365,6 +1530,7 @@ typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'heading', constructor: Heading });
 typechecker.register({ name: 'heading-group', constructor: HeadingGroup });
 typechecker.register({ name: 'icon', constructor: Icon });
+typechecker.register({ name: 'link', constructor: Link });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'row', constructor: Row });
@@ -1381,6 +1547,7 @@ ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Heading', constructor: Heading });
 ui.register({ name: 'HeadingGroup', constructor: HeadingGroup });
 ui.register({ name: 'Icon', constructor: Icon });
+ui.register({ name: 'Link', constructor: Link });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Row', constructor: Row });
