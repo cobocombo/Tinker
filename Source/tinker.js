@@ -587,7 +587,7 @@ class Button extends Component
     {
       invalidStyleError: style => `Button Error: Unsupported style "${style}".`,
       stylesTypeError: 'Button Error: Expected styles to be an array of strings.',
-      textTypeError: 'Paragraph Error: Expected type string for text.',
+      textTypeError: 'Button Error: Expected type string for text.',
     };
 
     this.#supportedStyles = 
@@ -873,6 +873,97 @@ class HeadingGroup extends Component
   constructor(options = {}) 
   {
     super({ tagName: 'hgroup', options: options });
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the Icon Component. */
+class Icon extends Component
+{
+  #errors;
+  #name;
+
+  /**
+   * Creates the icon object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'i', options: options });
+
+    this.#errors = 
+    {
+      colorInvalidError: 'Icon Error: Invalid color value provided for color.',
+      colorTypeError: 'Icon Error: Expected type string for color.',
+      nameTypeError: 'Icon Error: Expected type string for name.',
+      sizeTypeError: 'Icon Error: Expected type string for size.'
+    };
+
+    if(options.color) this.color = options.color;
+    if(options.name) this.name = options.name;
+    if(options.size) this.size = options.size;
+  }
+
+  /** 
+   * Get property to return the icon's color value.
+   * @return {string} The icon's color value.
+   */
+  get color()
+  {
+    return this.element.style.color;
+  }
+
+  /** 
+   * Set property to set the icon's color value.
+   * @param {string} value - The icon's color value. Will throw an error if the color value is not valid.
+   */
+  set color(value)
+  { 
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.colorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.colorInvalidError);
+    this.element.style.color = value;
+  }
+
+  /**
+   * Get property to get the current name of the icon.
+   * @returns {string | null}
+   */
+  get name()
+  {
+    return this.#name || null;
+  }
+
+  /**
+   * Set property to set the name of the icon. 
+   * Currently supports font-awesome, ionicons, and bootstrap icon sets.
+   * @param {string} value - Name of the icon.
+   */
+  set name(value) 
+  {
+    if (!typechecker.check({ type: 'string', value })) console.error(this.#errors.nameTypeError);
+    this.element.classList.forEach(cls => this.element.classList.remove(cls));
+    value.trim().split(/\s+/).forEach(cls => this.element.classList.add(cls));
+    this.#name = value.trim();
+  }
+
+  /**
+   * Get property to get the current size of the icon.
+   * @returns {string}
+   */
+  get size()
+  {
+    return this.style.fontSize;
+  }
+
+  /**
+   * Set property to set the size of the icon. Uses font size property internally.
+   * @param {string} value - Size of the icon.
+   */
+  set size(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.sizeTypeError);
+    this.style.fontSize = value;
   }
 }
 
@@ -1182,6 +1273,7 @@ typechecker.register({ name: 'footer', constructor: Footer });
 typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'heading', constructor: Heading });
 typechecker.register({ name: 'heading-group', constructor: HeadingGroup });
+typechecker.register({ name: 'icon', constructor: Icon });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'section', constructor: Section });
@@ -1195,6 +1287,7 @@ ui.register({ name: 'Footer', constructor: Footer });
 ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Heading', constructor: Heading });
 ui.register({ name: 'HeadingGroup', constructor: HeadingGroup });
+ui.register({ name: 'Icon', constructor: Icon });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Section', constructor: Section });
