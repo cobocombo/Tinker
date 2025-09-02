@@ -1187,7 +1187,6 @@ class Link extends Component
   }
 }
 
-
 /////////////////////////////////////////////////
 
 /** Class representing the Page Component. */
@@ -1513,6 +1512,222 @@ class Section extends Component
   }
 }
 
+/////////////////////////////////////////////////
+
+/** Class representing the Table Component. */
+class Table extends Component
+{
+  #errors;
+  #scopeTypes;
+  body;
+  footer;
+  header;
+
+  /**
+   * Creates the table object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'table', options: options });
+
+    this.#errors = 
+    {
+      invalidScopeError: scope => `Table Error: Unsupported scope "${scope}".`,
+      rowTypeError: 'Table Error: Expected type TableRow for row.',
+      scopeTypeError: 'Table Error: Expected type string for scope.'
+    };
+
+    this.#scopeTypes = 
+    {
+      header: 'header',
+      body: 'body',
+      footer: 'footer',
+    };
+
+    this.header = new ui.Component({ tagName: 'thead', options: {} });
+    this.body = new ui.Component({ tagName: 'tbody', options: {} });
+    this.footer = new ui.Component({ tagName: 'tfoot', options: {} });
+
+    this.addComponent({ component: this.header });
+    this.addComponent({ component: this.body });
+    this.addComponent({ component: this.footer });
+  }
+
+  /** 
+   * Public method to add a new row to the table.
+   * @param {TableRow} row - The row to be inserted in the table.
+   * @param {string} scope - The scope of which the row should be added to the table. Accepts header, body, or footer.
+   */
+  addRow({ row, scope } = {})
+  {
+    if(!typechecker.check({ type: 'table-row', value: row })) console.error(this.#errors.rowTypeError);
+    if(!typechecker.check({ type: 'string', value: scope })) console.error(this.#errors.scopeTypeError);
+    if(scope === this.#scopeTypes.header) this.header.addComponent({ component: row });
+    else if(scope === this.#scopeTypes.body) this.body.addComponent({ component: row });
+    else if(scope === this.#scopeTypes.footer) this.footer.addComponent({ component: row });
+    else console.error(this.#errors.invalidScopeError(scope));
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the TableCell Component. */
+class TableCell extends Component
+{
+  #errors;
+  #rawText;
+  #type;
+
+  /**
+   * Creates the table cell object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    let validTypes = 
+    {
+      th: 'header',
+      td: 'data'
+    };
+
+    let tagName = 'td';
+    if(options.type  == validTypes.th) tagName = 'th';
+    else tagName = 'td';
+
+    if(!typechecker.check({ type: 'string', value: tagName })) console.error('Table Cell Error: Expected type string for type.');
+
+    super({ tagName: tagName, options: options });
+    this.#type = tagName;
+
+    this.#errors = 
+    {
+      textTypeError: 'Table Cell Error: Expected type string for text.',
+      textColorInvalidError: 'Table Cell Error: Invalid color value provided for text color.',
+      textColorTypeError: 'Table Cell Error: Expected type string for textColor.'
+    };
+
+    this.#rawText = '';
+    if(options.component) this.addComponent({ component: options.component });
+    if(options.text) this.text = options.text;
+    if(options.textColor) this.textColor = options.textColor;  
+  }
+
+  /** 
+   * Get property to return the table cell's type.
+   * @return {string} The table cell's type.
+   */
+  get type()
+  {
+    return this.#type;
+  }
+
+  /** 
+   * Get property to return the table cell's text value.
+   * @return {string} The table cell's text value. If inline elements were used the same text will be returned. 
+   */
+  get text()
+  {
+    if(!this.#rawText) return '';
+    let raw = this.element.innerHTML;
+    raw = raw.replace(
+      /<abbr title="(.+?)">(.+?)<\/abbr>/g,
+      '[abbr:$2|$1]'
+    );
+
+    let tagMap = [
+      'strong', 'b', 'i', 'em', 'cite',
+      'del', 'ins', 'kbd', 'mark',
+      's', 'small', 'sub', 'sup', 'u'
+    ];
+
+    for(let tag of tagMap) 
+    {
+      let regex = new RegExp(`<${tag}>(.+?)<\/${tag}>`, 'g');
+      raw = raw.replace(regex, `[${tag}:$1]`);
+    }
+
+    return raw;
+  }
+
+  /** 
+   * Set property to set the table cell's text value.
+   * @param {string} value - The table cell's text value. Supports inline element support through bracket notation.
+   * Ex: This is a [em:very] [strong:strong] table cell! 
+   * It Supports the following tags: strong, b, i, em, cite, del, ins, kbd, mark, s, small, sub, sup, u.
+   */
+  set text(value)
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.textTypeError);
+
+    this.#rawText = value;
+    let tagMap = [
+      'strong', 'b', 'i', 'em', 'cite',
+      'del', 'ins', 'kbd', 'mark',
+      's', 'small', 'sub', 'sup', 'u'
+    ];
+
+    let formatted = value;
+    formatted = formatted.replace(
+      /\[abbr:(.+?)\|(.+?)\]/g,
+      '<abbr title="$2">$1</abbr>'
+    );
+
+    for(let tag of tagMap) 
+    {
+      let regex = new RegExp(`\\[${tag}:(.+?)\\]`, 'g');
+      formatted = formatted.replace(regex, `<${tag}>$1</${tag}>`);
+    }
+
+    this.element.innerHTML = formatted;
+  }
+
+  /** 
+   * Get property to return the table cell's text color value.
+   * @return {string} The table cell's text color value.
+   */
+  get textColor() 
+  {
+    return this.element.style.color;
+  }
+
+  /** 
+   * Set property to set the table cell's text color value.
+   * @param {string} value - The table cell's text color value. Will throw an error if the color value is not valid.
+   */
+  set textColor(value) 
+  {
+    if(!typechecker.check({ type: 'string', value })) console.error(this.#errors.textColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.element.style.color = value;
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the TableRow Component. */
+class TableRow extends Component
+{
+  /**
+   * Creates the table row object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'tr', options: options });
+  }
+
+  /** 
+   * Public method to add a new table cell to the row.
+   * @param {TableCell} cell - The cell to be inserted in the row.
+   */
+  addCell({ cell } = {})
+  {
+    if(!typechecker.check({ type: 'table-cell', value: cell })) console.error('Table Row Error: Expected type TableCell for cell.');
+    this.addComponent({ component: cell });
+  }
+}
+
 ///////////////////////////////////////////////////////////
 
 globalThis.typechecker = TypeChecker.getInstance();
@@ -1535,6 +1750,9 @@ typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'row', constructor: Row });
 typechecker.register({ name: 'section', constructor: Section });
+typechecker.register({ name: 'table', constructor: Table });
+typechecker.register({ name: 'table-cell', constructor: TableCell });
+typechecker.register({ name: 'table-row', constructor: TableRow });
 
 ui.register({ name: 'Blockquote', constructor: Blockquote });
 ui.register({ name: 'Button', constructor: Button });
@@ -1552,3 +1770,6 @@ ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Row', constructor: Row });
 ui.register({ name: 'Section', constructor: Section });
+ui.register({ name: 'Table', constructor: Table });
+ui.register({ name: 'TableCell', constructor: TableCell });
+ui.register({ name: 'TableRow', constructor: TableRow });
