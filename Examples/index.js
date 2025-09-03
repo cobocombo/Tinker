@@ -8,9 +8,10 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
-    let table = new ui.Table();
+    let table = new ui.Table({ striped: true });
     let headerRow = new ui.TableRow();
     let bodyRow1 = new ui.TableRow();
+    let bodyRow2 = new ui.TableRow();
     let footerRow = new ui.TableRow();
 
     headerRow.addCell({ cell: new ui.TableCell({ type: 'header', text: 'Planet' }) });
@@ -22,7 +23,12 @@ class HomePage extends ui.Page
     bodyRow1.addCell({ cell: new ui.TableCell({ type: 'body', text: '4,880' }) });
     bodyRow1.addCell({ cell: new ui.TableCell({ type: 'body', text: '0.39' }) });
     bodyRow1.addCell({ cell: new ui.TableCell({ type: 'body', text: '3.7' }) });
-    
+
+    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: 'Venus' }) });
+    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: '12,104' }) });
+    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: '0.72' }) });
+    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: '8.9' }) });
+
     footerRow.addCell({ cell: new ui.TableCell({ type: 'header', text: 'Average' }) });
     footerRow.addCell({ cell: new ui.TableCell({ type: 'body', text: '9,126' }) });
     footerRow.addCell({ cell: new ui.TableCell({ type: 'body', text: '0.91' }) });
@@ -30,6 +36,7 @@ class HomePage extends ui.Page
 
     table.addRow({ row: headerRow, scope: 'header' });
     table.addRow({ row: bodyRow1, scope: 'body' });
+    table.addRow({ row: bodyRow2, scope: 'body' });
     table.addRow({ row: footerRow, scope: 'footer' });
 
     this.addComponent({ component: table });

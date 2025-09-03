@@ -1535,7 +1535,8 @@ class Table extends Component
     {
       invalidScopeError: scope => `Table Error: Unsupported scope "${scope}".`,
       rowTypeError: 'Table Error: Expected type TableRow for row.',
-      scopeTypeError: 'Table Error: Expected type string for scope.'
+      scopeTypeError: 'Table Error: Expected type string for scope.',
+      stripedTypeError: 'Table Error: Expected type boolean for striped.'
     };
 
     this.#scopeTypes = 
@@ -1552,6 +1553,28 @@ class Table extends Component
     this.addComponent({ component: this.header });
     this.addComponent({ component: this.body });
     this.addComponent({ component: this.footer });
+
+    if(options.striped) this.striped = options.striped;
+  }
+
+  /** 
+   * Get property to return the table striped value.
+   * @return {boolean} The table striped value.
+   */
+  get striped()
+  {
+    return this.element.classList.contains('striped');
+  }
+
+  /** 
+   * Set property to set the table's striped value.
+   * @param {boolean} value - The table's striped value.
+   */
+  set striped(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.stripedTypeError);
+    if(value === true) this.addClass({ className: 'striped' })
+    else this.removeClass({ className: 'striped '});
   }
 
   /** 
