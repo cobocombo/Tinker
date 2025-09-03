@@ -793,6 +793,49 @@ class Footer extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Form Component. */
+class Form extends Component
+{
+  #errors;
+  #supportedControls;
+  fieldset;
+
+  /**
+   * Creates the form object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'form', options: options });
+
+    this.#errors = 
+    {
+      controlTypeError: 'Form Error: Expected one of the following types for control: ',
+      labelTypeError : 'Form Error: Expected type string for label.'
+    };
+
+    this.#supportedControls = ['switch'];
+    this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
+    this.addComponent({ component: this.fieldset });
+  }
+
+  addControl({ control, label } = {})
+  {
+    if(!typechecker.checkMultiple({ types: this.#supportedControls, value: control })) console.error(this.#errors.controlTypeError);
+    if(!typechecker.check({ type: 'string', value: label })) console.error(this.#errors.labelTypeError);
+    if(label)
+    {
+      let controlLabel = new ui.Component({ tagName: 'label', options: {} });
+      controlLabel.addComponent({ component: control });
+      controlLabel.element.appendChild(document.createTextNode(' ' + label));
+      this.fieldset.addComponent({ component: controlLabel });
+    }
+    else this.fieldset.addComponent({ component: control });
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Header Component. */
 class Header extends Component
 {
@@ -1514,6 +1557,160 @@ class Section extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Switch Component. */
+class Switch extends Component
+{
+  #errors;
+  #checked;
+  #color;
+  #name;
+  #onChange;
+
+  /**
+   * Creates the switch object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'input', options: options });
+
+    this.#errors = 
+    {
+      checkedTypeError : 'Switch Error: Expected type boolean for checked.',
+      colorInvalidError: 'Switch Error: Invalid color value for color.',
+      colorTypeError: 'Switch Error: Expected type string for color.',
+      nameTypeError : 'Switch Error: Expected type string for name.',
+      onChangeTypeError: 'Switch Error: Expected type function for onChange.'
+    };
+
+    this.setAttribute({ key: 'type', value: 'checkbox' });
+    this.setAttribute({ key: 'role', value: 'switch' });
+
+    this.checked = options.checked || false;
+    if(options.color) this.color = options.color;
+    if(options.name) this.name = options.name;
+    if(options.onChange) this.onChange = options.onChange;
+  }
+
+  /* Private method to emit switch changes internally. */
+  #emitChange()
+  {
+    const event = new Event('change', { bubbles: true });
+    this.element.dispatchEvent(event);
+  }
+
+  /** 
+   * Get property to return the checked value of the switch.
+   * @return {boolean} The checked value of the switch. 
+   */
+  get checked()
+  {
+    return this.#checked;
+  }
+
+  /** 
+   * Set property to set the checked value of the switch.
+   * @param {string} value - The checked value of the switch.
+   */
+  set checked(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.checkedTypeError);
+    if(value == true) this.on();
+    else this.off();
+  }
+
+  /** 
+   * Get property to return the color of the switch.
+   * @return {string} The color of the switch. 
+   */
+  get color() 
+  { 
+    return this.#color; 
+  }
+  
+  /** 
+   * Set property to set the color of the switch.
+   * @param {string} value - The color of the switch.
+   */
+  set color(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.colorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.colorInvalidError);
+    this.style.setProperty("--pico-switch-checked-background-color", value);
+    this.#color = value;
+  }
+
+  /** 
+   * Get property to return the name of the switch.
+   * @return {string} The name of the switch. 
+   */
+  get name()
+  {
+    return this.#name;
+  }
+
+  /** 
+   * Set property to set the name of the switch.
+   * @param {string} value - The name of the switch.
+   */
+  set name(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.nameTypeError);
+    this.removeAttribute({ key: 'name' });
+    this.setAttribute({ key: 'name', value: value });
+    this.#name = value;
+  }
+
+  /** 
+   * Get property to return the function being called during on change events.
+   * @return {function} The function being called during on change events.
+   */
+  get onChange() 
+  { 
+    return this.#onChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on change events.
+   * @param {function} value - The function being called during on change events. Returns the state of the switch.
+   */
+  set onChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onChangeTypeError);
+  
+    if(this.#onChange) this.removeEventListener({ event: 'change', handler: this.#onChange });
+    const handler = (event) => value(event.target.checked);
+  
+    this.#onChange = handler;
+    this.addEventListener({ event: 'change', handler: handler });
+  }
+
+  /* Public method to turn the switch on. */
+  on(tap = false) 
+  { 
+    this.setAttribute({ key: 'checked', value: '' });
+    this.#checked = true;
+    if(tap == false) this.#emitChange();
+  }
+
+  /* Public method to turn the switch off. */
+  off(tap = false)
+  {
+    this.removeAttribute({ key: 'checked' });
+    this.#checked = false;
+    if(tap == false) this.#emitChange();
+  }
+
+  /* Public method to toggle the switch state. */
+  toggle(tap = false)
+  {
+    if(this.#checked === true) this.off(tap);
+    else this.on(tap);
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Table Component. */
 class Table extends Component
 {
@@ -1764,6 +1961,7 @@ typechecker.register({ name: 'column', constructor: Column });
 typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'divider', constructor: Divider });
 typechecker.register({ name: 'footer', constructor: Footer });
+typechecker.register({ name: 'form', constructor: Form });
 typechecker.register({ name: 'header', constructor: Header });
 typechecker.register({ name: 'heading', constructor: Heading });
 typechecker.register({ name: 'heading-group', constructor: HeadingGroup });
@@ -1773,6 +1971,7 @@ typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'row', constructor: Row });
 typechecker.register({ name: 'section', constructor: Section });
+typechecker.register({ name: 'switch', constructor: Switch });
 typechecker.register({ name: 'table', constructor: Table });
 typechecker.register({ name: 'table-cell', constructor: TableCell });
 typechecker.register({ name: 'table-row', constructor: TableRow });
@@ -1784,6 +1983,7 @@ ui.register({ name: 'Column', constructor: Column });
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Divider', constructor: Divider });
 ui.register({ name: 'Footer', constructor: Footer });
+ui.register({ name: 'Form', constructor: Form });
 ui.register({ name: 'Header', constructor: Header });
 ui.register({ name: 'Heading', constructor: Heading });
 ui.register({ name: 'HeadingGroup', constructor: HeadingGroup });
@@ -1793,6 +1993,7 @@ ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Row', constructor: Row });
 ui.register({ name: 'Section', constructor: Section });
+ui.register({ name: 'Switch', constructor: Switch });
 ui.register({ name: 'Table', constructor: Table });
 ui.register({ name: 'TableCell', constructor: TableCell });
 ui.register({ name: 'TableRow', constructor: TableRow });

@@ -8,38 +8,21 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
-    let table = new ui.Table({ striped: true });
-    let headerRow = new ui.TableRow();
-    let bodyRow1 = new ui.TableRow();
-    let bodyRow2 = new ui.TableRow();
-    let footerRow = new ui.TableRow();
+    let sw = new ui.Switch({ 
+      checked: true, 
+      name: 'toggle-switch', 
+      color: 'red',
+      onChange: (value) => { console.log(value); } 
+    });
 
-    headerRow.addCell({ cell: new ui.TableCell({ type: 'header', text: 'Planet' }) });
-    headerRow.addCell({ cell: new ui.TableCell({ type: 'header', text: 'Diam. (km)' }) });
-    headerRow.addCell({ cell: new ui.TableCell({ type: 'header', text: 'Dist. to Sun (AU)' }) });
-    headerRow.addCell({ cell: new ui.TableCell({ type: 'header', text: 'Grav. (m/s²)' }) });
+    let form = new ui.Form();
+    form.addControl({ control: sw, label: 'Switch Example' });
 
-    bodyRow1.addCell({ cell: new ui.TableCell({ type: 'body', text: 'Mercury' }) });
-    bodyRow1.addCell({ cell: new ui.TableCell({ type: 'body', text: '4,880' }) });
-    bodyRow1.addCell({ cell: new ui.TableCell({ type: 'body', text: '0.39' }) });
-    bodyRow1.addCell({ cell: new ui.TableCell({ type: 'body', text: '3.7' }) });
+    this.addComponent({ component: form });
 
-    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: 'Venus' }) });
-    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: '12,104' }) });
-    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: '0.72' }) });
-    bodyRow2.addCell({ cell: new ui.TableCell({ type: 'body', text: '8.9' }) });
-
-    footerRow.addCell({ cell: new ui.TableCell({ type: 'header', text: 'Average' }) });
-    footerRow.addCell({ cell: new ui.TableCell({ type: 'body', text: '9,126' }) });
-    footerRow.addCell({ cell: new ui.TableCell({ type: 'body', text: '0.91' }) });
-    footerRow.addCell({ cell: new ui.TableCell({ type: 'body', text: '341' }) });
-
-    table.addRow({ row: headerRow, scope: 'header' });
-    table.addRow({ row: bodyRow1, scope: 'body' });
-    table.addRow({ row: bodyRow2, scope: 'body' });
-    table.addRow({ row: footerRow, scope: 'footer' });
-
-    this.addComponent({ component: table });
+    setTimeout(() => { sw.off(); }, 2000);
+    setTimeout(() => { sw.on(); }, 4000);
+    setTimeout(() => { sw.toggle(); }, 6000);
   }
 }
 
