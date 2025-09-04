@@ -862,7 +862,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['file-picker', 'switch', 'textfield', 'text-area'];
+    this.#supportedControls = ['file-picker', 'search-bar', 'switch', 'textfield', 'text-area'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
@@ -1589,6 +1589,194 @@ class Row extends Component
 }
 
 /////////////////////////////////////////////////
+
+/** Class representing the Searchbar Component. */
+class Searchbar extends Component
+{
+  #errors;
+  #maxLength;
+  #onChange;
+  #onTextChange;
+  #placeholder;
+
+  /**
+   * Creates the section object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'input', options: options });
+    this.setAttribute({ key: 'type', value: 'search' });
+
+    this.#errors = 
+    {
+      caretColorInvalidError: 'Searchbar Error: Invalid color value provided for caret color.',
+      caretColorTypeError: 'Searchbar Error: Expected type string for caret color.',
+      maxLengthTypeError: 'Searchbar Error: Expected type number for max length.',
+      onChangeTypeError: 'Searchbar Error: Expected type function for onChange.',
+      onTextChangeTypeError: 'Searchbar Error: Expected type function for onTextChange.',
+      placeholderTypeError: 'Searchbar Error: Expected type string for placeholder.',
+      textColorInvalidError: 'Searchbar Error: Invalid color value provided for text color.',
+      textColorTypeError: 'Searchbar Error: Expected type string for text color.',
+      textTypeError: 'Searchbar Error: Expected type string for text.'
+    };
+    
+    if(options.caretColor) this.caretColor = options.caretColor;
+    if(options.maxLength) this.maxLength = options.maxLength;
+    if(options.onChange) this.onChange = options.onChange;
+    if(options.onTextChange) this.onTextChange = options.onTextChange;
+    if(options.text) this.text = options.text;
+    this.placeholder = options.placeholder || "Search...";
+    if(options.textColor) this.textColor = options.textColor;
+  }
+
+  /** 
+   * Get property to return the caret color of the search bar.
+   * @return {string} The caret color of the search bar.
+   */
+  get caretColor() 
+  { 
+    return this.style.caretColor; 
+  }
+  
+  /** 
+   * Set property to set the caret color of the search bar.
+   * @param {string} value - The caret color of the search bar.
+   */
+  set caretColor(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.caretColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.caretColorInvalidError);
+    this.style.caretColor = value;
+  }
+  
+  /** 
+   * Get property to return the max length value of the search bar.
+   * @return {number} The max length value of the search bar.
+   */
+  get maxLength() 
+  { 
+    return this.#maxLength; 
+  }
+  
+  /** 
+   * Set property to set the max length value of the search bar.
+   * @param {number} value - The max length of the search bar.
+   */
+  set maxLength(value) 
+  {
+    if(!typechecker.check({ type: 'number', value: value })) console.error(this.#errors.maxLengthTypeError);
+    this.setAttribute({ key: 'maxlength', value: String(value) });
+    this.#maxLength = value;
+  }
+  
+  /** 
+   * Get property to return the function being called during on change events.
+   * @return {function} The function being called during on change events.
+   */
+  get onChange() 
+  { 
+    return this.#onChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on change events.
+   * @param {function} value - The function being called during on change events.
+   */
+  set onChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onChangeTypeError);
+
+    if(this.#onChange) this.removeEventListener({ event: 'change', handler: this.#onChange });
+    const handler = (event) => value(event.target.value);
+
+    this.#onChange = handler;
+    this.addEventListener({ event: 'change' , handler });
+  }
+
+  /** 
+   * Get property to return the function being called during on text change events.
+   * @return {function} The function being called during on text change events.
+   */
+  get onTextChange() 
+  { 
+    return this.#onTextChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on text change events.
+   * @param {function} value - The function being called during on text change events.
+   */
+  set onTextChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onTextChangeTypeError);
+
+    if(this.#onTextChange) this.removeEventListener({ event: 'input', handler: this.#onTextChange });
+    const handler = (event) => value(event.target.value);
+
+    this.#onTextChange = handler;
+    this.addEventListener({ event: 'input', handler: handler });
+  }
+
+  /** 
+   * Get property to return the placeholder value for the search bar.
+   * @return {string} The placeholder value for the search bar.
+   */
+  get placeholder() 
+  { 
+    return this.#placeholder; 
+  }
+  
+  /** 
+   * Set property to set the placeholder value of the search bar.
+   * @param {string} value - The placeholder value of the search bar.
+   */
+  set placeholder(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.placeholderTypeError);
+    this.setAttribute({ key: 'placeholder', value: value });
+    this.#placeholder = value;
+  }
+  
+  /** 
+   * Get property to return the text value for the search bar.
+   * @return {string} The text value for the search bar.
+   */
+  get text() 
+  { 
+    return this.element.value; 
+  }
+
+  /** 
+   * Set property to set the text value of the search bar.
+   * @param {string} value - The text value of the search bar.
+   */
+  set text(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
+    this.element.value = value;
+  }
+  
+  /** 
+   * Get property to return the text color of the search bar.
+   * @return {string} The text color of the search bar.
+   */
+  get textColor() 
+  { 
+    return this.style.color; 
+  }
+  
+  /** 
+   * Set property to set the text color of the search bar.
+   * @param {string} value - The text color of the search bar.
+   */
+  set textColor(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.style.color = value;
+  }
+}
 
 /** Class representing the Section Component. */
 class Section extends Component
@@ -2552,6 +2740,7 @@ typechecker.register({ name: 'link', constructor: Link });
 typechecker.register({ name: 'page', constructor: Page });
 typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'row', constructor: Row });
+typechecker.register({ name: 'search-bar', constructor: Searchbar });
 typechecker.register({ name: 'section', constructor: Section });
 typechecker.register({ name: 'switch', constructor: Switch });
 typechecker.register({ name: 'table', constructor: Table });
@@ -2577,6 +2766,7 @@ ui.register({ name: 'Link', constructor: Link });
 ui.register({ name: 'Page', constructor: Page });
 ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Row', constructor: Row });
+ui.register({ name: 'Searchbar', constructor: Searchbar });
 ui.register({ name: 'Section', constructor: Section });
 ui.register({ name: 'Switch', constructor: Switch });
 ui.register({ name: 'Table', constructor: Table });
