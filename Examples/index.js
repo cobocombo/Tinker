@@ -8,27 +8,13 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
-    let textfield = new ui.Textfield();
-    textfield.text = 'First Name...';
-    textfield.type = 'password';
-    textfield.caretColor = 'red';
-    textfield.textColor = 'blue';
-    textfield.maxLength = 5;
-    textfield.onChange = (value) => { console.log(value); }
-    textfield.onTextChange = (value) => { console.log(value); }
-    textfield.failure = true;
-    textfield.success = true;
-
-    let sw = new ui.Switch({ 
-      checked: true, 
-      name: 'toggle-switch', 
-      color: 'red',
-      onChange: (value) => { console.log(value); } 
-    });
+    let area = new ui.TextArea();
+    area.caretColor = 'green';
+    area.rows = 2;
+    area.cols = 5;
 
     let form = new ui.Form();
-    form.addControl({ control: textfield });
-    form.addControl({ control: sw, label: 'Switch Example' });
+    form.addControl({ control: area });
   
     this.addComponent({ component: form });
   }
