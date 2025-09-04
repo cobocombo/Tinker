@@ -1955,11 +1955,13 @@ class TextArea extends Component
 {
   #caretColor;
   #errors;
+  #failure;
   #maxLength;
   #onChange;
   #onTextChange;
   #placeholder;
   #resizable;
+  #success;
 
   /**
    * Creates the text area object.
@@ -1973,11 +1975,13 @@ class TextArea extends Component
     {
       caretColorInvalidError: 'TextArea Error: Invalid color value provided for caretColor.',
       caretColorTypeError: 'TextArea Error: Expected type string for caretColor.',
+      failureTypeError: 'TextArea Error: Expected type boolean for failure.',
       maxLengthTypeError: 'TextArea Error: Expected type number for maxLength.',
       onChangeTypeError: 'TextArea Error: Expected type function for onChange.',
       onTextChangeTypeError: 'TextArea Error: Expected type function for onTextChange.',
       placeholderTypeError: 'TextArea Error: Expected type string for placeholder.',
       resizableTypeError: 'TextArea Error: Expected boolean value for resizable.',
+      successTypeError: 'TextArea Error: Expected type boolean for success.',
       textColorInvalidError: 'TextArea Error: Invalid color value provided for textColor.',
       textColorTypeError: 'TextArea Error: Expected type string for textColor.',
       textTypeError: 'TextArea Error: Expected type string for text.'
@@ -2011,6 +2015,27 @@ class TextArea extends Component
     if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.caretColorTypeError);
     if(!color.isValid({ color: value })) console.error(this.#errors.caretColorInvalidError);
     this.style.caretColor = value;
+  }
+
+  /** 
+   * Get property to return the failure property for the textarea.
+   * @return {boolean} The failure property for the textarea.
+   */
+  get failure()
+  {
+    return this.#failure;
+  }
+
+  /** 
+   * Set property to set the failure property of the textarea.
+   * @param {boolean} value - The failure property of the textarea.
+   */
+  set failure(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.failureTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(value) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#failure = value;
   }
 
   /** 
@@ -2119,6 +2144,27 @@ class TextArea extends Component
     if(!typechecker.check({ type: 'boolean', value })) console.error(this.#errors.resizableTypeError); 
     this.style.resize = value ? 'both' : 'none';
     this.#resizable = value;
+  }
+
+  /** 
+   * Get property to return the success property for the textarea.
+   * @return {boolean} The failure property for the textarea.
+   */
+  get success()
+  {
+    return this.#success;
+  }
+
+  /** 
+   * Set property to set the failure property of the textarea.
+   * @param {boolean} value - The failure property of the textarea.
+   */
+  set success(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.successTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(false) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#success = value;
   }
 
   /** 

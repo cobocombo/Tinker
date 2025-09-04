@@ -9,9 +9,7 @@ class HomePage extends ui.Page
     this.favicon = 'star.png';
 
     let area = new ui.TextArea();
-    area.caretColor = 'green';
-    area.rows = 2;
-    area.cols = 5;
+    area.caretColor = 'red';
 
     let form = new ui.Form();
     form.addControl({ control: area });
