@@ -8,6 +8,15 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
+    let textfield = new ui.Textfield();
+    textfield.text = 'First Name...';
+    textfield.type = 'password';
+    textfield.caretColor = 'red';
+    textfield.textColor = 'blue';
+    textfield.maxLength = 5;
+    textfield.onChange = (value) => { console.log(value); }
+    textfield.onTextChange = (value) => { console.log(value); }
+
     let sw = new ui.Switch({ 
       checked: true, 
       name: 'toggle-switch', 
@@ -16,13 +25,10 @@ class HomePage extends ui.Page
     });
 
     let form = new ui.Form();
+    form.addControl({ control: textfield });
     form.addControl({ control: sw, label: 'Switch Example' });
-
+  
     this.addComponent({ component: form });
-
-    setTimeout(() => { sw.off(); }, 2000);
-    setTimeout(() => { sw.on(); }, 4000);
-    setTimeout(() => { sw.toggle(); }, 6000);
   }
 }
 

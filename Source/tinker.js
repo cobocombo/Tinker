@@ -814,7 +814,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['switch'];
+    this.#supportedControls = ['switch', 'textfield'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
@@ -822,9 +822,9 @@ class Form extends Component
   addControl({ control, label } = {})
   {
     if(!typechecker.checkMultiple({ types: this.#supportedControls, value: control })) console.error(this.#errors.controlTypeError);
-    if(!typechecker.check({ type: 'string', value: label })) console.error(this.#errors.labelTypeError);
     if(label)
     {
+      if(!typechecker.check({ type: 'string', value: label })) console.error(this.#errors.labelTypeError);
       let controlLabel = new ui.Component({ tagName: 'label', options: {} });
       controlLabel.addComponent({ component: control });
       controlLabel.element.appendChild(document.createTextNode(' ' + label));
@@ -1948,6 +1948,232 @@ class TableRow extends Component
   }
 }
 
+/////////////////////////////////////////////////
+
+/** Class representing the Textfield Component. */
+class Textfield extends Component
+{
+  #caretColor;
+  #errors;
+  #maxLength;
+  #onChange;
+  #onTextChange;
+  #placeholder;
+  #type;
+  #validTypes;
+
+  /**
+   * Creates the textfield object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'input', options: options });
+
+    this.#validTypes = 
+    {
+      email: 'email',
+      number: 'number',
+      password: 'password',
+      tel: 'tel',
+      text: 'text',
+      url: 'url'
+    };
+
+    this.#errors = 
+    {
+      caretColorInvalidError: 'Textfield Error: Invalid color value provided for caretColor.',
+      caretColorTypeError: 'Textfield Error: Expected type string for caretColor.',
+      maxLengthTypeError: 'Textfield Error: Expected type number for maxLength.',
+      onChangeTypeError: 'Textfield Error: Expected type function for onChange.',
+      onTextChangeTypeError: 'Textfield Error: Expected type function for onTextChange.',
+      placeholderTypeError: 'Textfield Error: Expected type string for placeholder.',
+      textColorInvalidError: 'Textfield Error: Invalid color value provided for textColor.',
+      textColorTypeError: 'Textfield Error: Expected type string for textColor.',
+      textTypeError: 'Textfield Error: Expected type string for text.',
+      typeInvalidError: 'Textfield Error: Invalid value provided for type.',
+      typeTypeError: 'Textfield Error: Expected type string for type.',
+    };
+
+    if(options.caretColor) this.caretColor = options.caretColor;
+    if(options.maxLength) this.maxLength = options.maxLength;
+    if(options.onChange) this.onChange = options.onChange;
+    if(options.onTextChange) this.onTextChange = options.onTextChange;
+    if(options.placeholder) this.placeholder = options.placeholder;
+    if(options.text) this.text = options.text;
+    if(options.textColor) this.textColor = options.textColor;
+    this.type = options.type || 'text';
+  }
+
+  /** 
+   * Get property to return the caret color of the textfield.
+   * @return {string} The caret color of the textfield.
+   */
+  get caretColor() 
+  { 
+    return this.#caretColor; 
+  }
+  
+  /** 
+   * Set property to set the caret color of the textfield.
+   * @param {string} value - The caret color of the textfield.
+   */
+  set caretColor(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.caretColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.caretColorInvalidError); 
+    this.style.caretColor = value;
+  }
+
+  /** 
+   * Get property to return the max character length for the textfield.
+   * @return {number} The max character length for the textfield.
+   */
+  get maxLength() 
+  { 
+    return this.#maxLength; 
+  }
+  
+  /** 
+   * Set property to set the max character length for the textfield.
+   * @param {number} value - The max character length for the textfield.
+   */
+  set maxLength(value) 
+  {
+    if(!typechecker.check({ type: 'number', value: value })) console.error(this.#errors.maxLengthTypeError);
+    this.setAttribute({ key: 'maxlength', value: String(value) });
+    this.#maxLength = value;
+  }
+
+  /** 
+   * Get property to return the function being called during on change events.
+   * @return {function} The function being called during on change events.
+   */
+  get onChange() 
+  { 
+    return this.#onChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on change events.
+   * @param {function} value - The function being called during on change events.
+   */
+  set onChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onChangeTypeError);
+
+    if(this.#onChange) this.removeEventListener({ event: 'change', handler: this.#onChange });
+    const handler = (event) => value(event.target.value);
+
+    this.#onChange = handler;
+    this.addEventListener({ event: 'change', handler: handler });
+  }
+
+  /** 
+   * Get property to return the function being called during on text change events.
+   * @return {function} The function being called during on text change events.
+   */
+  get onTextChange() 
+  { 
+    return this.#onTextChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on text change events.
+   * @param {function} value - The function being called during on text change events.
+   */
+  set onTextChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onTextChangeTypeError);
+
+    if(this.#onTextChange) this.removeEventListener({ event: 'input', handler: this.#onTextChange });
+    const handler = (event) => value(event.target.value);
+
+    this.#onTextChange = handler;
+    this.addEventListener({ event: 'input', handler: handler });
+  }
+
+  /** 
+   * Get property to return the placeholder value for the textfield.
+   * @return {string} The placeholder value for the textfield.
+   */
+  get placeholder() 
+  { 
+    return this.#placeholder; 
+  }
+  
+  /** 
+   * Set property to set the placeholder value of the textfield.
+   * @param {string} value - The placeholder value of the textfield.
+   */
+  set placeholder(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.placeholderTypeError);
+    this.setAttribute({ key: 'placeholder', value: value });
+    this.#placeholder = value;  
+  }
+
+  /** 
+   * Get property to return the text value for the textfield.
+   * @return {string} The text value for the textfield.
+   */
+  get text() 
+  { 
+    return this.element.value; 
+  }
+  
+  /** 
+   * Set property to set the text value of the textfield.
+   * @param {string} value - The text value of the textfield.
+   */
+  set text(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
+    this.element.value = value;
+  }
+
+  /** 
+   * Get property to return the text color of the textfield.
+   * @return {string} The text color of the textfield.
+   */
+  get textColor() 
+  { 
+    return this.style.color;
+  }
+  
+  /** 
+   * Set property to set the text color of the textfield
+   * @param {string} value - The text color of the textfield.
+   */
+  set textColor(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.style.color = value;
+  }
+
+  /** 
+   * Get property to return the type of the textfield.
+   * @return {string} The type of the textfield. 
+   */
+  get type() 
+  { 
+    return this.#type; 
+  }
+
+  /** 
+   * Set property to set the type of the textfield
+   * @param {string} value - The type of the textfield.
+   */
+  set type(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.typeTypeError);
+    if(!Object.values(this.#validTypes).includes(value)) console.error(this.#errors.typeInvalidError);
+    this.setAttribute({ key: 'type', value: value });
+    this.#type = value;
+  }
+}
+
 ///////////////////////////////////////////////////////////
 
 globalThis.typechecker = TypeChecker.getInstance();
@@ -1975,6 +2201,7 @@ typechecker.register({ name: 'switch', constructor: Switch });
 typechecker.register({ name: 'table', constructor: Table });
 typechecker.register({ name: 'table-cell', constructor: TableCell });
 typechecker.register({ name: 'table-row', constructor: TableRow });
+typechecker.register({ name: 'textfield', constructor: Textfield });
 
 ui.register({ name: 'Blockquote', constructor: Blockquote });
 ui.register({ name: 'Button', constructor: Button });
@@ -1997,3 +2224,4 @@ ui.register({ name: 'Switch', constructor: Switch });
 ui.register({ name: 'Table', constructor: Table });
 ui.register({ name: 'TableCell', constructor: TableCell });
 ui.register({ name: 'TableRow', constructor: TableRow });
+ui.register({ name: 'Textfield', constructor: Textfield });
