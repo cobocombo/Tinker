@@ -1955,10 +1955,12 @@ class Textfield extends Component
 {
   #caretColor;
   #errors;
+  #failure;
   #maxLength;
   #onChange;
   #onTextChange;
   #placeholder;
+  #success;
   #type;
   #validTypes;
 
@@ -1984,10 +1986,12 @@ class Textfield extends Component
     {
       caretColorInvalidError: 'Textfield Error: Invalid color value provided for caretColor.',
       caretColorTypeError: 'Textfield Error: Expected type string for caretColor.',
+      failureTypeError: 'Textfield Error: Expected type boolean for failure.',
       maxLengthTypeError: 'Textfield Error: Expected type number for maxLength.',
       onChangeTypeError: 'Textfield Error: Expected type function for onChange.',
       onTextChangeTypeError: 'Textfield Error: Expected type function for onTextChange.',
       placeholderTypeError: 'Textfield Error: Expected type string for placeholder.',
+      successTypeError: 'Textfield Error: Expected type boolean for success.',
       textColorInvalidError: 'Textfield Error: Invalid color value provided for textColor.',
       textColorTypeError: 'Textfield Error: Expected type string for textColor.',
       textTypeError: 'Textfield Error: Expected type string for text.',
@@ -1996,10 +2000,12 @@ class Textfield extends Component
     };
 
     if(options.caretColor) this.caretColor = options.caretColor;
+    if(options.failure) this.failure = options.failure;
     if(options.maxLength) this.maxLength = options.maxLength;
     if(options.onChange) this.onChange = options.onChange;
     if(options.onTextChange) this.onTextChange = options.onTextChange;
     if(options.placeholder) this.placeholder = options.placeholder;
+    if(options.success) this.success = options.success;
     if(options.text) this.text = options.text;
     if(options.textColor) this.textColor = options.textColor;
     this.type = options.type || 'text';
@@ -2023,6 +2029,27 @@ class Textfield extends Component
     if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.caretColorTypeError);
     if(!color.isValid({ color: value })) console.error(this.#errors.caretColorInvalidError); 
     this.style.caretColor = value;
+  }
+
+  /** 
+   * Get property to return the failure property for the textfield.
+   * @return {boolean} The failure property for the textfield.
+   */
+  get failure()
+  {
+    return this.#failure;
+  }
+
+  /** 
+   * Set property to set the failure property of the textfield.
+   * @param {boolean} value - The failure property of the textfield.
+   */
+  set failure(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.failureTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(value) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#failure = value;
   }
 
   /** 
@@ -2111,6 +2138,27 @@ class Textfield extends Component
     if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.placeholderTypeError);
     this.setAttribute({ key: 'placeholder', value: value });
     this.#placeholder = value;  
+  }
+
+  /** 
+   * Get property to return the success property for the textfield.
+   * @return {boolean} The failure property for the textfield.
+   */
+  get success()
+  {
+    return this.#success;
+  }
+
+  /** 
+   * Set property to set the failure property of the textfield.
+   * @param {boolean} value - The failure property of the textfield.
+   */
+  set success(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.successTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(false) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#success = value;
   }
 
   /** 

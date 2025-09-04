@@ -16,6 +16,8 @@ class HomePage extends ui.Page
     textfield.maxLength = 5;
     textfield.onChange = (value) => { console.log(value); }
     textfield.onTextChange = (value) => { console.log(value); }
+    textfield.failure = true;
+    textfield.success = true;
 
     let sw = new ui.Switch({ 
       checked: true, 
