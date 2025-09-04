@@ -743,6 +743,54 @@ class Divider extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the FilePicker Component. */
+class FilePicker extends Component
+{
+  #errors;
+  #onUpload;
+
+  /**
+   * Creates the file picker object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'input', options: options });
+    this.setAttribute({ key: 'type', value: 'file' });
+
+    this.#errors = 
+    {
+      onUploadTypeError: 'File Picker error: Expected type function for onUpload.'
+    };
+  }
+
+  /** 
+   * Get property to return the function being called during on upload events.
+   * @return {function} The function being called during on upload events.
+   */
+  get onUpload() 
+  { 
+    return this.#onUpload; 
+  }
+
+  /** 
+   * Set property to set the function being called during on upload events.
+   * @param {function} value - The function being called during on upload events.
+   */
+  set onUpload(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onUploadTypeError);
+
+    if(this.#onUpload) this.removeEventListener({ event: 'change', handler: this.#onUpload });
+    const handler = (event) => value(event.target.value);
+
+    this.#onUpload = handler;
+    this.addEventListener({ event: 'change', handler: handler });
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Footer Component. */
 class Footer extends Component
 {
@@ -814,7 +862,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['switch', 'textfield', 'text-area'];
+    this.#supportedControls = ['file-picker', 'switch', 'textfield', 'text-area'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
@@ -2493,6 +2541,7 @@ typechecker.register({ name: 'card', constructor: Card });
 typechecker.register({ name: 'column', constructor: Column });
 typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'divider', constructor: Divider });
+typechecker.register({ name: 'file-picker', constructor: FilePicker });
 typechecker.register({ name: 'footer', constructor: Footer });
 typechecker.register({ name: 'form', constructor: Form });
 typechecker.register({ name: 'header', constructor: Header });
@@ -2517,6 +2566,7 @@ ui.register({ name: 'Card', constructor: Card });
 ui.register({ name: 'Column', constructor: Column });
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Divider', constructor: Divider });
+ui.register({ name: 'FilePicker', constructor: FilePicker });
 ui.register({ name: 'Footer', constructor: Footer });
 ui.register({ name: 'Form', constructor: Form });
 ui.register({ name: 'Header', constructor: Header });

@@ -8,11 +8,11 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
-    let area = new ui.TextArea();
-    area.caretColor = 'red';
+    let picker = new ui.FilePicker();
+    picker.onUpload = (value) => { console.log(value); }
 
     let form = new ui.Form();
-    form.addControl({ control: area });
+    form.addControl({ control: picker });
   
     this.addComponent({ component: form });
   }
