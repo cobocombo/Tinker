@@ -553,6 +553,76 @@ class Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Accordion Component. */
+class Accordion extends Component
+{
+  #errors;
+  summary;
+
+  /**
+   * Creates the accordion object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {})
+  {
+    super({ tagName: 'details', options: options });
+
+    this.#errors = 
+    {
+      titleTypeError: 'Accordion Error: Expected type string for title.',
+      textColorInvalidError: 'Accordion Error: Invalid color value provided for title color.',
+      titleColorTypeError: 'Accordion Error: Expected type string for title color'
+    };
+
+    this.summary = new ui.Component({ tagName: 'summary', options: {} });
+    this.addComponent({ component: this.summary });
+
+    if(options.title) this.title = options.title;
+    if(options.titleColor) this.titleColor = options.titleColor;
+  }
+
+  /**
+   * Get property to get the current title of the accordion.
+   * @returns {string}
+   */
+  get title()
+  {
+    return this.summary.element.textContent;
+  }
+
+  /**
+   * Set property to set accordion title.
+   * @param {string} value - Title of the accordion.
+   */
+  set title(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error('Accordion Error: Expected type string for title.');
+    this.summary.element.textContent = value;
+  }
+
+  /** 
+   * Get property to return the accordion's title color value.
+   * @return {string} The accordion's title color value.
+   */
+  get titleColor() 
+  {
+    return this.summary.element.style.color;
+  }
+
+  /** 
+   * Set property to set the accordion's title color value.
+   * @param {string} value - The accordion's title color value. Will throw an error if invalid.
+   */
+  set titleColor(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.titleColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.summary.element.style.color = value;
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Blockquote Component. */
 class Blockquote extends Component
 {
@@ -2723,6 +2793,7 @@ globalThis.typechecker = TypeChecker.getInstance();
 globalThis.color = ColorManager.getInstance();
 globalThis.ui = UserInterface.getInstance();
 
+typechecker.register({ name: 'accordion', constructor: Accordion });
 typechecker.register({ name: 'blockquote', constructor: Blockquote });
 typechecker.register({ name: 'button', constructor: Button });
 typechecker.register({ name: 'card', constructor: Card });
@@ -2749,6 +2820,7 @@ typechecker.register({ name: 'table-row', constructor: TableRow });
 typechecker.register({ name: 'text-area', constructor: TextArea });
 typechecker.register({ name: 'textfield', constructor: Textfield });
 
+ui.register({ name: 'Accordion', constructor: Accordion });
 ui.register({ name: 'Blockquote', constructor: Blockquote });
 ui.register({ name: 'Button', constructor: Button });
 ui.register({ name: 'Card', constructor: Card });
