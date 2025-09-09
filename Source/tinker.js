@@ -933,7 +933,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['file-picker', 'search-bar', 'switch', 'textfield', 'text-area'];
+    this.#supportedControls = ['file-picker', 'search-bar', 'slider', 'switch', 'textfield', 'text-area'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
@@ -1866,6 +1866,8 @@ class Searchbar extends Component
   }
 }
 
+/////////////////////////////////////////////////
+
 /** Class representing the Section Component. */
 class Section extends Component
 {
@@ -1876,6 +1878,152 @@ class Section extends Component
   constructor(options = {}) 
   {
     super({ tagName: 'section', options: options });
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the Slider Component. */
+class Slider extends Component
+{
+  #errors;
+  #max;
+  #min;
+  #step;
+  #onChange;
+  
+  /**
+   * Creates the slider object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'input', options: options });
+    
+    this.#errors = 
+    {
+      onChangeTypeError: 'Slider Error: Expected type function for onChange.',
+      maxTypeError: 'Slider Error: Expected type number for max.',
+      minTypeError: 'Slider Error: Expected type number for min.',
+      stepTypeError: 'Slider Error: Expected type number for step.',
+      valueTypeError: 'Slider Error: Expected type number for value.'
+    };
+    
+    this.max = options.max || 100;
+    this.min = options.min || 0;
+    this.step = options.step || 10;
+
+    if(options.onChange) this.onChange = options.onChange;
+    if(options.value) this.value = options.value;
+    
+    this.setAttribute({ key: 'type', value: 'range' });
+  }
+  
+  /** 
+   * Get property to return the max value of the slider.
+   * @return {number} The max value of the slider.
+   */
+  get max() 
+  { 
+    return this.#max; 
+  }
+  
+  /** 
+   * Set property to set the max value of the slider.
+   * @param {number} value - The max value of the slider.
+   */
+  set max(value)
+  {
+    if(!typechecker.check({ type: 'number', value: value })) console.error(this.#errors.maxTypeError);
+    this.setAttribute({ key: 'max', value: String(value) });
+    this.#max = value;
+  }
+  
+  /** 
+   * Get property to return the min value of the slider.
+   * @return {number} The min value of the slider.
+   */
+  get min() 
+  { 
+    return this.#min; 
+  }
+  
+  /** 
+   * Set property to set the min value of the slider.
+   * @param {number} value - The min value of the slider.
+   */
+  set min(value)
+  {
+    if(!typechecker.check({ type: 'number', value: value })) console.error(this.#errors.minTypeError);
+    this.setAttribute({ key: 'min', value: String(value) });
+    this.#min = value;
+  }
+  
+  /** 
+   * Get property to return the function being called during on change events.
+   * @return {function} The function being called during on change events.
+   */
+  get onChange() 
+  { 
+    return this.#onChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on change events.
+   * @param {function} value - The function being called during on change events. Returns the selected option.
+   */
+  set onChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onChangeTypeError);
+    if(this.#onChange) this.removeEventListener({ event: 'change', handler: this.#onChange });
+
+    let handler = (event) => 
+    {
+      const val = event.target.value;
+      value(val);
+    };
+
+    this.#onChange = handler;
+    this.addEventListener({ event: 'change', handler: handler });
+  }
+  
+  /** 
+   * Get property to return the step value of the slider.
+   * @return {number} The step value of the slider.
+   */
+  get step() 
+  { 
+    return this.#step; 
+  }
+  
+  /** 
+   * Set property to set the step value of the slider.
+   * @param {number} value - The step value of the slider.
+   */
+  set step(value)
+  {
+    if(!typechecker.check({ type: 'number', value: value })) console.error(this.#errors.stepTypeError);
+    this.setAttribute({ key: 'step', value: String(value) });
+    this.#step = value;
+  }
+  
+  /** 
+   * Get property to return the current value of the slider.
+   * @return {number} The current value of the slider.
+   */
+  get value() 
+  { 
+    return this.element.value; 
+  }
+
+  /** 
+   * Set property to set the current value of the slider.
+   * @param {number} value - The current value of the slider.
+   */
+  set value(value) 
+  { 
+    if(!typechecker.check({ type: 'number', value: value })) console.error(this.#errors.valueTypeError);
+    this.element.value = String(value); 
   }
 }
 
@@ -2831,6 +2979,7 @@ typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'row', constructor: Row });
 typechecker.register({ name: 'search-bar', constructor: Searchbar });
 typechecker.register({ name: 'section', constructor: Section });
+typechecker.register({ name: 'slider', constructor: Slider });
 typechecker.register({ name: 'switch', constructor: Switch });
 typechecker.register({ name: 'table', constructor: Table });
 typechecker.register({ name: 'table-cell', constructor: TableCell });
@@ -2858,6 +3007,7 @@ ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Row', constructor: Row });
 ui.register({ name: 'Searchbar', constructor: Searchbar });
 ui.register({ name: 'Section', constructor: Section });
+ui.register({ name: 'Slider', constructor: Slider });
 ui.register({ name: 'Switch', constructor: Switch });
 ui.register({ name: 'Table', constructor: Table });
 ui.register({ name: 'TableCell', constructor: TableCell });

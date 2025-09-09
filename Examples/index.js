@@ -8,11 +8,10 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
-    let search = new ui.Searchbar();
-    let accordion = new ui.Accordion({ title: 'This is a title', titleColor: 'blue' });
+    let slide = new ui.Slider();
     
     let form = new ui.Form();
-    form.addControl({ control: search });
+    form.addControl({ control: slide });
   
     this.addComponent({ component: form });
   }
