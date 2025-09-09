@@ -933,7 +933,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['file-picker', 'search-bar', 'slider', 'switch', 'textfield', 'text-area'];
+    this.#supportedControls = ['file-picker', 'search-bar', 'selector', 'slider', 'switch', 'textfield', 'text-area'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
@@ -1878,6 +1878,181 @@ class Section extends Component
   constructor(options = {}) 
   {
     super({ tagName: 'section', options: options });
+  }
+}
+
+/////////////////////////////////////////////////
+
+/** Class representing the Selector Component. */
+class Selector extends Component
+{
+  #errors;
+  #failure;
+  #multiple;
+  #onChange;
+  #options;
+  #prompt;
+  #required;
+  #success;
+  
+  /**
+   * Creates the selector object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'select', options: options });
+    
+    this.#errors = 
+    {
+      multipleTypeError: 'Selector Error: Expected type boolean for multiple.',
+      onChangeTypeError: 'Selector Error: Expected type function for onChange.',
+      optionTypeError: 'Selector Error: Expected type string for option.',
+      optionsTypeError: 'Selector Error: Expected type array for options.',
+      promptTypeError: 'Selector Error: Expected type string for prompt.',
+      requiredTypeError: 'Selector Error: Expected type boolean for required.',
+      selectedOptionTypeError: 'Selector Error: Expected type string for selected option.',
+      selectedOptionNotFoundError: 'Selector Error: The desired selected option could not be found in the options array.',
+    };
+    
+    this.#options = [];
+    if(options.failure) this.failure = options.failure;
+    if(options.options) this.options = options.options;
+    if(options.onChange) this.onChange = options.onChange;
+    if(options.selectedOption) this.selectedOption = options.selectedOption;
+    if(options.success) this.success = options.success;
+  }
+  
+  /** 
+   * Get property to return the failure property for the selector.
+   * @return {boolean} The failure property for the selector.
+   */
+  get failure()
+  {
+    return this.#failure;
+  }
+
+  /** 
+   * Set property to set the failure property of the selector.
+   * @param {boolean} value - The failure property of the selector.
+   */
+  set failure(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.failureTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(value) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#failure = value;
+  }
+  
+  /** 
+   * Get property to return the function being called during on change events.
+   * @return {function} The function being called during on change events.
+   */
+  get onChange() 
+  { 
+    return this.#onChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on change events.
+   * @param {function} value - The function being called during on change events. Returns the selected option.
+   */
+  set onChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onChangeTypeError);
+    if(this.#onChange) this.removeEventListener({ event: 'change', handler: this.#onChange });
+
+    let handler = (event) => 
+    {
+      const option = event.target.value;
+      value(option);
+    };
+
+    this.#onChange = handler;
+    this.addEventListener({ event: 'change', handler: handler });
+  }
+  
+  /** 
+   * Get property to return options of the selector.
+   * @return {array} The options of the selector.
+   */
+  get options() 
+  { 
+    return this.#options; 
+  }
+  
+  /** 
+   * Set property to set the options of the selector.
+   * @param {array} value - The sequence of strings with the titles of the selector's options.
+   */
+  set options(value) 
+  {
+    if(!typechecker.check({ type: 'array', value: value })) console.error(this.#errors.optionsTypeError);
+    this.element.innerHTML = '';
+    this.#options = [];
+    this.#options = value;
+    this.#options.forEach((opt) => 
+    {
+      if(!typechecker.check({ type: 'string', value: opt })) console.error(this.#errors.optionTypeError);
+      let optionElement = document.createElement('option');
+      optionElement.textContent = opt;
+      optionElement.value = opt;
+      this.element.appendChild(optionElement);
+    });
+  }
+  
+  get required()
+  {
+    return this.#required;
+  }
+  
+  set required(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.requiredTypeError);
+    if(value === true) this.setAttribute({ key: 'required', value: String(value) });
+    else this.removeAttribute({ key: 'required' });
+    this.#required = value;
+  }
+  
+  /** 
+   * Get property to return the currently selected option of the selector.
+   * @return {string} The currently selected option of the selector.
+   */
+  get selectedOption() 
+  { 
+    return this.element.value; 
+  }
+
+  /** 
+   * Set property to set the selected option of the selector.
+   * @param {string} value - The desired option to be selected in the selector. Throws an error if it is not in the set of current options.
+   */
+  set selectedOption(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.selectedOptionTypeError);
+    if(!this.#options.includes(value)) console.error(this.#errors.selectedOptionNotFoundError);
+    this.element.value = value;
+  }
+  
+  /** 
+   * Get property to return the success property for the selector.
+   * @return {boolean} The failure property for the selector.
+   */
+  get success()
+  {
+    return this.#success;
+  }
+
+  /** 
+   * Set property to set the success property of the selector.
+   * @param {boolean} value - The success property of the selector.
+   */
+  set success(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.successTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(false) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#success = value;
   }
 }
 
@@ -2979,6 +3154,7 @@ typechecker.register({ name: 'paragraph', constructor: Paragraph });
 typechecker.register({ name: 'row', constructor: Row });
 typechecker.register({ name: 'search-bar', constructor: Searchbar });
 typechecker.register({ name: 'section', constructor: Section });
+typechecker.register({ name: 'selector', constructor: Selector });
 typechecker.register({ name: 'slider', constructor: Slider });
 typechecker.register({ name: 'switch', constructor: Switch });
 typechecker.register({ name: 'table', constructor: Table });
@@ -3007,6 +3183,7 @@ ui.register({ name: 'Paragraph', constructor: Paragraph });
 ui.register({ name: 'Row', constructor: Row });
 ui.register({ name: 'Searchbar', constructor: Searchbar });
 ui.register({ name: 'Section', constructor: Section });
+ui.register({ name: 'Selector', constructor: Selector });
 ui.register({ name: 'Slider', constructor: Slider });
 ui.register({ name: 'Switch', constructor: Switch });
 ui.register({ name: 'Table', constructor: Table });
