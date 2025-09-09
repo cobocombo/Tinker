@@ -929,6 +929,7 @@ class Form extends Component
     this.#errors = 
     {
       controlTypeError: 'Form Error: Expected one of the following types for control: ',
+      labelPositionTypeError : 'Form Error: Expected type string for label position.',
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
@@ -937,15 +938,32 @@ class Form extends Component
     this.addComponent({ component: this.fieldset });
   }
 
-  addControl({ control, label } = {})
+  addControl({ control, label, labelPosition } = {})
   {
     if(!typechecker.checkMultiple({ types: this.#supportedControls, value: control })) console.error(this.#errors.controlTypeError);
     if(label)
     {
       if(!typechecker.check({ type: 'string', value: label })) console.error(this.#errors.labelTypeError);
       let controlLabel = new ui.Component({ tagName: 'label', options: {} });
-      controlLabel.addComponent({ component: control });
-      controlLabel.element.appendChild(document.createTextNode(' ' + label));
+      if(labelPosition)
+      {
+        if(!typechecker.check({ type: 'string', value: label })) console.error(this.#errors.labelPositionTypeError);
+        if(labelPosition === 'top')
+        {
+          controlLabel.element.appendChild(document.createTextNode(' ' + label));
+          controlLabel.addComponent({ component: control });
+        }
+        else
+        {
+          controlLabel.addComponent({ component: control });
+          controlLabel.element.appendChild(document.createTextNode(' ' + label));
+        }
+      }
+      else 
+      {
+        controlLabel.addComponent({ component: control });
+        controlLabel.element.appendChild(document.createTextNode(' ' + label));
+      }
       this.fieldset.addComponent({ component: controlLabel });
     }
     else this.fieldset.addComponent({ component: control });
