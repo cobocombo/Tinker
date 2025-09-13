@@ -8,10 +8,14 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
-    let checkbox = new ui.Checkbox({ failure: true });
+    let ford = new ui.RadioButton({ name: 'truck' });
+    let chevy = new ui.RadioButton({ name: 'truck' });
+    let dodge = new ui.RadioButton({ name: 'truck' });
     
     let form = new ui.Form();
-    form.addControl({ control: checkbox, label: 'Red' });
+    form.addControl({ control: ford, label: 'Ford' });
+    form.addControl({ control: chevy, label: 'Chevy' });
+    form.addControl({ control: dodge, label: 'Dodge' });
   
     this.addComponent({ component: form });
   }
