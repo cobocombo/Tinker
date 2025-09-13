@@ -8,12 +8,10 @@ class HomePage extends ui.Page
     this.title = 'Home';
     this.favicon = 'star.png';
 
-    let select = new ui.Selector({ prompt: 'Pick a number...' , multiple: true });
-    select.options = ['One', 'Two', 'Three'];
-    select.onChange = (value) => { console.log(select.selectedOption) };
+    let checkbox = new ui.Checkbox({ failure: true });
     
     let form = new ui.Form();
-    form.addControl({ control: select });
+    form.addControl({ control: checkbox, label: 'Red' });
   
     this.addComponent({ component: form });
   }

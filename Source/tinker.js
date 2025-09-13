@@ -184,6 +184,7 @@ class Component
 {
   #errors;
   #element;
+  #name;
   #onTap;
   
   /**
@@ -209,6 +210,7 @@ class Component
       getClassesError: 'Component Error: Unable to retrieve classes; element not initialized.',
       heightTypeError: 'Component Error: Expected type string for height.',
       idTypeError: 'Component Error: Expected type string for id.',
+      nameTypeError: 'Component Error: Expected type string for name.',
       noTagNameParameterError: 'Component Error: No tagName parameter was detected.',
       onTapTypeError: 'Component Error: Expected type function for onTap.',
       removeAttributeKeyTypeError: 'Component Error: Expected type string for key when trying to remove the attribute value that corresponds with the key provided.',
@@ -371,6 +373,27 @@ class Component
   {
     if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.idTypeError);
     this.#element.id = value;
+  }
+  
+  /** 
+   * Get property to return the name of the switch.
+   * @return {string} The name of the switch. 
+   */
+  get name()
+  {
+    return this.#name;
+  }
+
+  /** 
+   * Set property to set the name of the switch.
+   * @param {string} value - The name of the switch.
+   */
+  set name(value)
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.nameTypeError);
+    this.removeAttribute({ key: 'name' });
+    this.setAttribute({ key: 'name', value: value });
+    this.#name = value;
   }
   
   /** 
@@ -742,6 +765,157 @@ class Card extends Component
 
 /////////////////////////////////////////////////
 
+/** Class representing the Checkbox Component. */
+class Checkbox extends Component
+{
+  #errors;
+  #failure;
+  #checked;
+  #onChange;
+  #success;
+
+  /**
+   * Creates the checkbox object.
+   * @param {object} options - Custom options object to init properties from the constructor.
+   */
+  constructor(options = {}) 
+  {
+    super({ tagName: 'input', options: options });
+    this.setAttribute({ key: 'type', value: 'checkbox' });
+
+    this.#errors = 
+    {
+      checkedTypeError: 'Checkbox Error: Expected type boolean for checked.',
+      failureTypeError: 'Checkbox Error: Expected type boolean for failure.',
+      onChangeTypeError: 'Checkbox Error: Expected type function for onChange.',
+      successTypeError: 'Checkbox Error: Expected type boolean for success.'
+    };
+
+    this.checked = options.checked || false;
+    if(options.failure) this.failure = options.failure;
+    if(options.onChange) this.onChange = options.onChange;
+    if(options.success) this.success = options.success;
+  }
+  
+  /* Private method to emit switch changes internally. */
+  #emitChange()
+  {
+    let event = new Event('change', { bubbles: true });
+    this.element.dispatchEvent(event);
+  }
+  
+  /**
+   * Get property to return the checkbox state.
+   * @return {boolean} True if checked, false otherwise.
+   */
+  get checked()
+  {
+    return this.#checked;
+  }
+
+  /** 
+   * Set property to set the checked value of the switch.
+   * @param {string} value - The checked value of the switch.
+   */
+  set checked(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.checkedTypeError);
+    if(value == true) this.check();
+    else this.uncheck();
+  }
+  
+  /** 
+   * Get property to return the failure property for the selector.
+   * @return {boolean} The failure property for the selector.
+   */
+  get failure()
+  {
+    return this.#failure;
+  }
+
+  /** 
+   * Set property to set the failure property of the selector.
+   * @param {boolean} value - The failure property of the selector.
+   */
+  set failure(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.failureTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(value) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#failure = value;
+  }
+  
+  /** 
+   * Get property to return the function being called during on change events.
+   * @return {function} The function being called during on change events.
+   */
+  get onChange() 
+  { 
+    return this.#onChange; 
+  }
+
+  /** 
+   * Set property to set the function being called during on change events.
+   * @param {function} value - The function being called during on change events. Returns the state of the switch.
+   */
+  set onChange(value)
+  {
+    if(!typechecker.check({ type: 'function', value: value })) console.error(this.#errors.onChangeTypeError);
+  
+    if(this.#onChange) this.removeEventListener({ event: 'change', handler: this.#onChange });
+    const handler = (event) => value(event.target.checked);
+  
+    this.#onChange = handler;
+    this.addEventListener({ event: 'change', handler: handler });
+  }
+  
+  /** 
+   * Get property to return the success property for the selector.
+   * @return {boolean} The failure property for the selector.
+   */
+  get success()
+  {
+    return this.#success;
+  }
+
+  /** 
+   * Set property to set the success property of the selector.
+   * @param {boolean} value - The success property of the selector.
+   */
+  set success(value)
+  {
+    if(!typechecker.check({ type: 'boolean', value: value })) console.error(this.#errors.successTypeError);
+    if(value === true) this.setAttribute({ key: 'aria-invalid', value: String(false) });
+    else this.removeAttribute({ key: 'aria-invalid' });
+    this.#success = value;
+  }
+  
+  /* Public method to uncheck the checkbox. */ 
+  check(tap = false)
+  {
+    this.setAttribute({ key: 'checked', value: '' });
+    this.#checked = true;
+    if(tap == false) this.#emitChange();
+  }
+
+  /* Public method to toggle the state of the  checkbox. */ 
+  toggle(tap = false) 
+  {
+    if(this.#checked == true) this.uncheck(tap);
+    else this.check(tap);
+  }
+  
+  /* Public method to uncheck the checkbox. */ 
+  uncheck(tap = false) 
+  { 
+    this.removeAttribute({ key: 'checked' });
+    this.#checked = false;
+    if(tap == false) this.#emitChange();
+  }
+}
+
+/////////////////////////////////////////////////
+
 /** Class representing the Column Component. */
 class Column extends Component
 {
@@ -933,7 +1107,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['file-picker', 'search-bar', 'selector', 'slider', 'switch', 'textfield', 'text-area'];
+    this.#supportedControls = ['checkbox', 'file-picker', 'search-bar', 'selector', 'slider', 'switch', 'textfield', 'text-area'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
@@ -2242,7 +2416,7 @@ class Switch extends Component
   /* Private method to emit switch changes internally. */
   #emitChange()
   {
-    const event = new Event('change', { bubbles: true });
+    let event = new Event('change', { bubbles: true });
     this.element.dispatchEvent(event);
   }
 
@@ -2285,27 +2459,6 @@ class Switch extends Component
     if(!color.isValid({ color: value })) console.error(this.#errors.colorInvalidError);
     this.style.setProperty("--pico-switch-checked-background-color", value);
     this.#color = value;
-  }
-
-  /** 
-   * Get property to return the name of the switch.
-   * @return {string} The name of the switch. 
-   */
-  get name()
-  {
-    return this.#name;
-  }
-
-  /** 
-   * Set property to set the name of the switch.
-   * @param {string} value - The name of the switch.
-   */
-  set name(value)
-  {
-    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.nameTypeError);
-    this.removeAttribute({ key: 'name' });
-    this.setAttribute({ key: 'name', value: value });
-    this.#name = value;
   }
 
   /** 
@@ -3138,6 +3291,7 @@ typechecker.register({ name: 'accordion', constructor: Accordion });
 typechecker.register({ name: 'blockquote', constructor: Blockquote });
 typechecker.register({ name: 'button', constructor: Button });
 typechecker.register({ name: 'card', constructor: Card });
+typechecker.register({ name: 'checkbox', constructor: Checkbox });
 typechecker.register({ name: 'column', constructor: Column });
 typechecker.register({ name: 'component', constructor: Component });
 typechecker.register({ name: 'divider', constructor: Divider });
@@ -3167,6 +3321,7 @@ ui.register({ name: 'Accordion', constructor: Accordion });
 ui.register({ name: 'Blockquote', constructor: Blockquote });
 ui.register({ name: 'Button', constructor: Button });
 ui.register({ name: 'Card', constructor: Card });
+ui.register({ name: 'Checkbox', constructor: Checkbox });
 ui.register({ name: 'Column', constructor: Column });
 ui.register({ name: 'Component', constructor: Component });
 ui.register({ name: 'Divider', constructor: Divider });
