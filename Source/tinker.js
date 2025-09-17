@@ -1131,7 +1131,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['button', 'checkbox', 'file-picker', 'radio-button', 'search-bar', 'selector', 'slider', 'switch', 'textfield', 'text-area'];
+    this.#supportedControls = ['checkbox', 'file-picker', 'radio-button', 'search-bar', 'selector', 'slider', 'switch', 'textfield', 'text-area'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
