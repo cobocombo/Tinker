@@ -681,6 +681,8 @@ class Button extends Component
     {
       invalidStyleError: style => `Button Error: Unsupported style "${style}".`,
       stylesTypeError: 'Button Error: Expected styles to be an array of strings.',
+      textColorInvalidError: 'Button Error: Invalid color value provided for text color.',
+      textColorTypeError: 'Button Error: Expected type string for textColor.',
       textTypeError: 'Button Error: Expected type string for text.'
     };
 
@@ -695,6 +697,7 @@ class Button extends Component
     this.#styles = [];
     if(options.styles) this.styles = options.styles;
     if(options.text) this.text = options.text;
+    if(options.textColor) this.textColor = options.textColor;
   }
 
   /**
@@ -746,6 +749,26 @@ class Button extends Component
   {
     if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textTypeError);
     this.element.textContent = value;
+  }
+  
+  /** 
+   * Get property to return the button's text color value.
+   * @return {string} The button's text color value.
+   */
+  get textColor() 
+  {
+    return this.element.style.color;
+  }
+
+  /** 
+   * Set property to set the button's text color value.
+   * @param {string} value - The button's text color value. Will throw an error if invalid.
+   */
+  set textColor(value) 
+  {
+    if(!typechecker.check({ type: 'string', value: value })) console.error(this.#errors.textColorTypeError);
+    if(!color.isValid({ color: value })) console.error(this.#errors.textColorInvalidError);
+    this.element.style.color = value;
   }
 }
 
@@ -1108,7 +1131,7 @@ class Form extends Component
       labelTypeError : 'Form Error: Expected type string for label.'
     };
 
-    this.#supportedControls = ['checkbox', 'file-picker', 'radio-button', 'search-bar', 'selector', 'slider', 'switch', 'textfield', 'text-area'];
+    this.#supportedControls = ['button', 'checkbox', 'file-picker', 'radio-button', 'search-bar', 'selector', 'slider', 'switch', 'textfield', 'text-area'];
     this.fieldset = new ui.Component({ tagName: 'fieldset', options: {} });
     this.addComponent({ component: this.fieldset });
   }
