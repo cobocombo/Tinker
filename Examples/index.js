@@ -7,12 +7,8 @@ class HomePage extends ui.Page
     this.container = 'fixed';
     this.title = 'Home';
     this.favicon = 'star.png';
-
-    let button = new ui.Button({ text: 'Click Me!' })
     
     let form = new ui.Form();
-    form.addControl({ control: button });
-  
     this.addComponent({ component: form });
   }
 }
